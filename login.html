@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <title>Campus IT System - Login</title>
+    <meta name="description" content="Shared login page for students and IT Support Staff.">
+
+    <!-- Link to your external CSS stylesheets -->
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="pages.css">
+</head>
+<body>
+
+    <header>
+        <h1>Campus IT Help Desk</h1>
+    </header>
+
+    <main>
+        <div class="card login-card">
+            <h2>Sign In</h2>
+            <p class="subtitle">Students and IT Support Staff sign in here.</p>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+
+                <p id="errorMessage" class="error-message"></p>
+
+                <button type="submit" id="loginButton" class="btn btn-primary">Sign In</button>
+            </form>
+
+            <div class="form-links">
+                <p>Don't have an account? <a href="register.html">Create Student Account</a></p>
+                <p><a href="index.html">Back to homepage</a></p>
+            </div>
+        </div>
+    </main>
+
+    <script src="login.js"></script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "Alex Admin",
+      "email": "admin@campus.edu",
+      "password": "admin123",
+      "role": "admin"
+    }
+  ],
+  "tickets": []
+}

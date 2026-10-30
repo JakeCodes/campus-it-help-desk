@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <title>Campus IT System</title>
+    <meta name="description" content="Student view of submitted IT support requests.">
+
+    <!-- Link to your external CSS stylesheets -->
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="pages.css">
+</head>
+<body>
+
+    <header class="has-actions">
+        <h1>Campus IT Help Desk</h1>
+        <button class="btn btn-header" onclick="logout()">Log out</button>
+    </header>
+
+    <main>
+        <div class="card">
+            <h2>My IT Requests</h2>
+            <p class="subtitle">Listed below are your IT requests.</p>
+            <a href="new-request.html" class="btn btn-primary">+ New Request</a>
+        </div>
+
+        <div id="request-list">
+            <p>Loading Tickets...</p>
+        </div>
+    </main>
+
+    <!-- Link to your external JavaScript file -->
+    <script src="student.js"></script>
+</body>
+</html>
