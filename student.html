@@ -4,12 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Campus IT System</title>
+    <script>if(localStorage.getItem('theme')==='dark')document.documentElement.setAttribute('data-theme','dark');</script>
     <link rel="stylesheet" href="pages.css">
 </head>
 <body>
     <header class="has-actions">
         <h1>Campus IT Help Desk</h1>
         <div style="position:absolute;right:20px;top:50%;transform:translateY(-50%);display:flex;flex-direction:row;align-items:center;gap:8px;white-space:nowrap">
+            <button class="dark-toggle" id="dark-toggle" onclick="toggleDark()">Dark Mode</button>
             <a href="profile.html" class="btn btn-header" style="position:static;transform:none">My Profile</a>
             <button class="btn btn-header" style="position:static;transform:none" onclick="logout()">Log out</button>
         </div>
@@ -17,7 +19,7 @@
 
     <main>
         <div class="card">
-            <h2>My IT Requests</h2>
+            <h2><span id="page-heading">My IT Requests</span> <span id="unread-badge" class="unread-badge" style="display:none">0 new</span></h2>
             <p class="subtitle">Listed below are your IT requests.</p>
             <a href="new-request.html" class="btn btn-primary">+ New Request</a>
             <div class="filter-bar">
@@ -43,5 +45,6 @@
     </main>
 
     <script src="student.js"></script>
+    <script src="session.js"></script>
 </body>
 </html>

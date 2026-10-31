@@ -24,7 +24,7 @@ function hashPassword(password) {
 }
 
 function verifyPassword(password, stored) {
-    if (!stored || !stored.includes(":")) return stored === password; // legacy plain text
+    if (!stored || !stored.includes(":")) return stored === password;
     const [salt, hash] = stored.split(":");
     try {
         const buf = crypto.scryptSync(password, salt, 64);
@@ -90,7 +90,6 @@ function serveFile(res, urlPath) {
 
     let filePath, ext;
     if (urlPath.startsWith("/uploads/")) {
-        // Serve only the basename so callers can't traverse directories
         filePath = path.join(UPLOADS_DIR, path.basename(urlPath));
         ext = path.extname(filePath).toLowerCase();
     } else {
@@ -121,7 +120,6 @@ async function handleApi(req, res, url) {
         if (!user || !verifyPassword(password, user.password)) {
             return sendJson(res, 401, { error: "Wrong email or password" });
         }
-        // Upgrade legacy plain-text password on successful login
         if (!user.password.includes(":")) {
             user.password = hashPassword(password);
             saveDb(db);
@@ -154,7 +152,7 @@ async function handleApi(req, res, url) {
         return sendJson(res, 201, publicUser(user));
     }
 
-    // PUT /api/users/:id  (profile update)
+    // PUT /api/users/:id
     const userMatch = url.pathname.match(/^\/api\/users\/(\d+)$/);
     if (req.method === "PUT" && userMatch) {
         const { name, currentPassword, newPassword } = await readBody(req);
@@ -206,6 +204,7 @@ async function handleApi(req, res, url) {
             }
         }
 
+        const now = new Date().toISOString();
         const ticket = {
             id: nextId(db.tickets),
             studentEmail: student.email,
@@ -216,14 +215,62 @@ async function handleApi(req, res, url) {
             description,
             status: "Open",
             assignedTo: null,
+            dueDate: null,
             attachment: attachmentInfo,
             comments: [],
             internalNotes: [],
-            createdAt: new Date().toISOString()
+            history: [{ at: now, by: student.name, action: "Ticket created" }],
+            studentUnread: false,
+            createdAt: now,
+            updatedAt: now
         };
         db.tickets.push(ticket);
         saveDb(db);
         return sendJson(res, 201, ticket);
+    }
+
+    // POST /api/tickets/bulk
+    if (req.method === "POST" && url.pathname === "/api/tickets/bulk") {
+        const { action, ticketIds, value } = await readBody(req);
+        if (!action || !Array.isArray(ticketIds)) {
+            return sendJson(res, 400, { error: "action and ticketIds are required" });
+        }
+        const now = new Date().toISOString();
+        let updated = 0;
+
+        if (action === "delete") {
+            for (let i = db.tickets.length - 1; i >= 0; i--) {
+                if (ticketIds.map(Number).includes(db.tickets[i].id)) {
+                    const removed = db.tickets[i];
+                    if (removed.attachment && removed.attachment.url) {
+                        const fp = path.join(UPLOADS_DIR, path.basename(removed.attachment.url));
+                        if (fs.existsSync(fp)) fs.unlinkSync(fp);
+                    }
+                    db.tickets.splice(i, 1);
+                    updated++;
+                }
+            }
+        } else {
+            ticketIds.map(Number).forEach(id => {
+                const ticket = db.tickets.find(t => t.id === id);
+                if (!ticket) return;
+                if (!ticket.history) ticket.history = [];
+                if (action === "status" && value) {
+                    ticket.history.push({ at: now, by: "Admin", action: "Status changed to " + value + " (bulk)" });
+                    ticket.status = value;
+                    ticket.updatedAt = now;
+                    updated++;
+                } else if (action === "assign") {
+                    ticket.history.push({ at: now, by: "Admin", action: "Assigned to " + (value || "Unassigned") + " (bulk)" });
+                    ticket.assignedTo = value || null;
+                    ticket.updatedAt = now;
+                    updated++;
+                }
+            });
+        }
+
+        saveDb(db);
+        return sendJson(res, 200, { ok: true, updated });
     }
 
     // PUT /api/tickets/:id
@@ -232,8 +279,23 @@ async function handleApi(req, res, url) {
         const body = await readBody(req);
         const ticket = db.tickets.find(t => t.id === Number(ticketMatch[1]));
         if (!ticket) return sendJson(res, 404, { error: "Ticket not found" });
-        if (body.status !== undefined) ticket.status = body.status;
-        if (body.assignedTo !== undefined) ticket.assignedTo = body.assignedTo;
+        const now = new Date().toISOString();
+        const by = body.changedBy || "Admin";
+        if (!ticket.history) ticket.history = [];
+
+        if (body.status !== undefined && body.status !== ticket.status) {
+            ticket.history.push({ at: now, by, action: "Status changed from " + ticket.status + " to " + body.status });
+            ticket.status = body.status;
+        }
+        if (body.assignedTo !== undefined && body.assignedTo !== ticket.assignedTo) {
+            ticket.history.push({ at: now, by, action: "Assigned to " + (body.assignedTo || "Unassigned") });
+            ticket.assignedTo = body.assignedTo;
+        }
+        if (body.dueDate !== undefined) {
+            ticket.history.push({ at: now, by, action: body.dueDate ? "Due date set to " + body.dueDate : "Due date removed" });
+            ticket.dueDate = body.dueDate;
+        }
+        ticket.updatedAt = now;
         saveDb(db);
         return sendJson(res, 200, ticket);
     }
@@ -252,16 +314,31 @@ async function handleApi(req, res, url) {
         return sendJson(res, 200, { ok: true });
     }
 
+    // PUT /api/tickets/:id/read  (clear studentUnread flag)
+    const readMatch = url.pathname.match(/^\/api\/tickets\/(\d+)\/read$/);
+    if (req.method === "PUT" && readMatch) {
+        const ticket = db.tickets.find(t => t.id === Number(readMatch[1]));
+        if (!ticket) return sendJson(res, 404, { error: "Ticket not found" });
+        ticket.studentUnread = false;
+        saveDb(db);
+        return sendJson(res, 200, { ok: true });
+    }
+
     // POST /api/tickets/:id/comments
     const commentMatch = url.pathname.match(/^\/api\/tickets\/(\d+)\/comments$/);
     if (req.method === "POST" && commentMatch) {
-        const { author, text } = await readBody(req);
+        const { author, text, fromStudent } = await readBody(req);
         if (!text) return sendJson(res, 400, { error: "Comment text is required" });
         const ticket = db.tickets.find(t => t.id === Number(commentMatch[1]));
         if (!ticket) return sendJson(res, 404, { error: "Ticket not found" });
         if (!ticket.comments) ticket.comments = [];
-        const comment = { id: nextId(ticket.comments), author: author || "Unknown", text, createdAt: new Date().toISOString() };
+        const now = new Date().toISOString();
+        const comment = { id: nextId(ticket.comments), author: author || "Unknown", text, fromStudent: !!fromStudent, createdAt: now };
         ticket.comments.push(comment);
+        if (!ticket.history) ticket.history = [];
+        ticket.history.push({ at: now, by: author || "Unknown", action: fromStudent ? "Student reply added" : "Staff comment added" });
+        if (!fromStudent) ticket.studentUnread = true;
+        ticket.updatedAt = now;
         saveDb(db);
         return sendJson(res, 201, comment);
     }
@@ -274,8 +351,12 @@ async function handleApi(req, res, url) {
         const ticket = db.tickets.find(t => t.id === Number(noteMatch[1]));
         if (!ticket) return sendJson(res, 404, { error: "Ticket not found" });
         if (!ticket.internalNotes) ticket.internalNotes = [];
-        const note = { id: nextId(ticket.internalNotes), author: author || "Unknown", text, createdAt: new Date().toISOString() };
+        const now = new Date().toISOString();
+        const note = { id: nextId(ticket.internalNotes), author: author || "Unknown", text, createdAt: now };
         ticket.internalNotes.push(note);
+        if (!ticket.history) ticket.history = [];
+        ticket.history.push({ at: now, by: author || "Unknown", action: "Internal note added" });
+        ticket.updatedAt = now;
         saveDb(db);
         return sendJson(res, 201, note);
     }

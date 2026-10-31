@@ -4,12 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Campus IT System - Admin</title>
+    <script>if(localStorage.getItem('theme')==='dark')document.documentElement.setAttribute('data-theme','dark');</script>
     <link rel="stylesheet" href="pages.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
 </head>
 <body>
     <header class="has-actions">
         <h1>Campus IT Help Desk</h1>
         <div style="position:absolute;right:20px;top:50%;transform:translateY(-50%);display:flex;flex-direction:row;align-items:center;gap:8px;white-space:nowrap">
+            <button class="btn-csv" onclick="exportCSV()">Export CSV</button>
+            <button class="dark-toggle" id="dark-toggle" onclick="toggleDark()">Dark Mode</button>
             <a href="profile.html" class="btn btn-header" style="position:static;transform:none">My Profile</a>
             <button class="btn btn-header" style="position:static;transform:none" onclick="logout()">Log out</button>
         </div>
@@ -21,26 +25,30 @@
             <p class="subtitle">Every request submitted by students.</p>
 
             <div class="stats-bar">
-                <div class="stat-tile" id="stat-all" onclick="filterByStat('')">
+                <div class="stat-tile" onclick="filterByStat('')">
                     <div class="stat-num" id="count-all">0</div>
                     <div class="stat-label">Total</div>
                 </div>
-                <div class="stat-tile stat-open" id="stat-open" onclick="filterByStat('Open')">
+                <div class="stat-tile stat-open" onclick="filterByStat('Open')">
                     <div class="stat-num" id="count-open">0</div>
                     <div class="stat-label">Open</div>
                 </div>
-                <div class="stat-tile stat-progress" id="stat-progress" onclick="filterByStat('In Progress')">
+                <div class="stat-tile stat-progress" onclick="filterByStat('In Progress')">
                     <div class="stat-num" id="count-progress">0</div>
                     <div class="stat-label">In Progress</div>
                 </div>
-                <div class="stat-tile stat-resolved" id="stat-resolved" onclick="filterByStat('Resolved')">
+                <div class="stat-tile stat-resolved" onclick="filterByStat('Resolved')">
                     <div class="stat-num" id="count-resolved">0</div>
                     <div class="stat-label">Resolved</div>
                 </div>
             </div>
 
+            <div style="margin-top:10px">
+                <button class="btn btn-outline" id="charts-toggle-btn" style="font-size:13px;padding:6px 16px" onclick="toggleCharts()">Show Charts</button>
+            </div>
+
             <div class="filter-bar">
-                <input type="text" id="search" placeholder="Search tickets...">
+                <input type="text" id="search" placeholder="Search or type #ID (e.g. #5)">
                 <select id="filter-status">
                     <option value="">All Statuses</option>
                     <option value="Open">Open</option>
@@ -74,13 +82,27 @@
             </div>
         </div>
 
+        <div id="charts-card" class="card charts-card">
+            <h3 style="text-align:center;margin-top:0;color:var(--text)">Ticket Overview</h3>
+            <div style="display:flex;gap:30px;justify-content:center;flex-wrap:wrap;align-items:flex-start">
+                <div style="width:220px;text-align:center">
+                    <p style="margin:0 0 8px;font-weight:bold;font-size:14px;color:var(--text-muted)">By Status</p>
+                    <canvas id="chart-status"></canvas>
+                </div>
+                <div style="width:340px;text-align:center">
+                    <p style="margin:0 0 8px;font-weight:bold;font-size:14px;color:var(--text-muted)">By Category</p>
+                    <canvas id="chart-category"></canvas>
+                </div>
+            </div>
+        </div>
+
         <div id="request-list"></div>
         <div id="pagination" class="pagination"></div>
 
         <div class="card request-card section-gap">
             <h2>Users</h2>
             <ul id="user-list" class="user-list"></ul>
-            <h3>Add a User</h3>
+            <h3 style="color:var(--text)">Add a User</h3>
             <form id="userForm">
                 <div class="form-group">
                     <label for="name">Name</label>
@@ -108,6 +130,25 @@
         </div>
     </main>
 
+    <!-- Bulk action bar (fixed bottom) -->
+    <div id="bulk-bar">
+        <span id="bulk-count" style="font-weight:bold;white-space:nowrap;min-width:80px">0 selected</span>
+        <select id="bulk-status-sel">
+            <option value="">Set status...</option>
+            <option value="Open">Open</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Resolved">Resolved</option>
+        </select>
+        <button class="bulk-btn bulk-btn-status" onclick="bulkSetStatus()">Apply</button>
+        <select id="bulk-assign-sel">
+            <option value="">Assign to...</option>
+        </select>
+        <button class="bulk-btn bulk-btn-assign" onclick="bulkAssign()">Assign</button>
+        <button class="bulk-btn bulk-btn-delete" onclick="bulkDelete()">Delete</button>
+        <button class="bulk-btn bulk-btn-clear" onclick="clearBulk()">Clear</button>
+    </div>
+
     <script src="admin.js"></script>
+    <script src="session.js"></script>
 </body>
 </html>

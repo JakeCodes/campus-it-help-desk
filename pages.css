@@ -1,19 +1,63 @@
-/* Shared look for the login and student pages, matching the homepage.
-   Load this AFTER style.css. */
+/* ===== CSS Custom Properties ===== */
+:root {
+    --bg: #f5f5f5;
+    --card-bg: #ffffff;
+    --text: #333333;
+    --text-muted: #555555;
+    --text-faint: #888888;
+    --border: #cccccc;
+    --header-bg: #333333;
+    --header-text: #ffffff;
+    --input-bg: #ffffff;
+    --primary: #0066cc;
+    --primary-hover: #0052a3;
+    --primary-light: #eef5fc;
+    --success: #1a7f37;
+    --error: #cc0000;
+    --stat-bg: #f0f0f0;
+    --msg-bg: #f5f5f5;
+    --note-bg: #fff8f0;
+    --shadow: rgba(0, 0, 0, 0.08);
+    --tile-border: #0066cc;
+}
 
+[data-theme="dark"] {
+    --bg: #121212;
+    --card-bg: #1e1e1e;
+    --text: #e0e0e0;
+    --text-muted: #aaaaaa;
+    --text-faint: #666666;
+    --border: #3a3a3a;
+    --header-bg: #0d0d0d;
+    --header-text: #e0e0e0;
+    --input-bg: #2a2a2a;
+    --primary: #4d9cf0;
+    --primary-hover: #3a88e0;
+    --primary-light: #1a2a3a;
+    --success: #4caf50;
+    --error: #f44336;
+    --stat-bg: #2a2a2a;
+    --msg-bg: #2a2a2a;
+    --note-bg: #2a1f0f;
+    --shadow: rgba(0, 0, 0, 0.35);
+    --tile-border: #4d9cf0;
+}
+
+/* ===== Base ===== */
 body {
     margin: 0;
     padding: 0;
     font-family: Arial, sans-serif;
     font-size: 16px;
-    background-color: #f5f5f5;
-    color: #333333;
+    background-color: var(--bg);
+    color: var(--text);
+    transition: background-color 0.2s, color 0.2s;
 }
 
-/* Dark title bar */
+/* ===== Header ===== */
 header {
-    background-color: #333333;
-    color: #ffffff;
+    background-color: var(--header-bg);
+    color: var(--header-text);
     text-align: center;
     padding: 20px;
 }
@@ -21,19 +65,21 @@ header {
 header h1 {
     margin: 0;
     font-size: 28px;
+    color: var(--header-text);
 }
 
+/* ===== Main ===== */
 main {
     max-width: 900px;
     margin: 0 auto;
-    padding: 24px 20px;
+    padding: 24px 20px 80px;
 }
 
-/* White rounded panel, same as the homepage welcome box */
+/* ===== Card ===== */
 .card {
-    background-color: #ffffff;
+    background-color: var(--card-bg);
     border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 8px var(--shadow);
     padding: 32px;
     margin-bottom: 24px;
     text-align: center;
@@ -42,45 +88,46 @@ main {
 .card h2 {
     margin-top: 0;
     font-size: 28px;
+    color: var(--text);
 }
 
 .subtitle {
-    color: #555555;
+    color: var(--text-muted);
     margin-top: 0;
 }
 
-/* Buttons */
+/* ===== Buttons ===== */
 .btn {
     display: inline-block;
     padding: 10px 24px;
     font-size: 16px;
     font-weight: bold;
     border-radius: 4px;
-    border: 2px solid #0066cc;
+    border: 2px solid var(--primary);
     cursor: pointer;
     text-decoration: none;
 }
 
 .btn-primary {
-    background-color: #0066cc;
+    background-color: var(--primary);
     color: #ffffff;
 }
 
 .btn-primary:hover {
-    background-color: #0052a3;
-    border-color: #0052a3;
+    background-color: var(--primary-hover);
+    border-color: var(--primary-hover);
 }
 
 .btn-outline {
-    background-color: #ffffff;
-    color: #0066cc;
+    background-color: var(--card-bg);
+    color: var(--primary);
 }
 
 .btn-outline:hover {
-    background-color: #eef5fc;
+    background-color: var(--primary-light);
 }
 
-/* Login form: the card spans the page like the others, the form stays narrow */
+/* ===== Login / Request form cards ===== */
 .login-card form,
 .login-card .form-links,
 .request-card form,
@@ -99,17 +146,10 @@ main {
     display: block;
     font-weight: bold;
     margin-bottom: 6px;
+    color: var(--text);
 }
 
-.form-group input {
-    width: 100%;
-    box-sizing: border-box;
-    padding: 10px 12px;
-    font-size: 16px;
-    border: 1px solid #cccccc;
-    border-radius: 4px;
-}
-
+.form-group input,
 .form-group textarea,
 .form-group select {
     width: 100%;
@@ -117,9 +157,10 @@ main {
     padding: 10px 12px;
     font-size: 16px;
     font-family: inherit;
-    border: 1px solid #cccccc;
+    border: 1px solid var(--border);
     border-radius: 4px;
-    background-color: #ffffff;
+    background-color: var(--input-bg);
+    color: var(--text);
 }
 
 .form-group textarea {
@@ -131,7 +172,7 @@ main {
 .form-group textarea:focus,
 .form-group select:focus {
     outline: none;
-    border-color: #0066cc;
+    border-color: var(--primary);
     box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.15);
 }
 
@@ -141,13 +182,13 @@ main {
 }
 
 .success-message {
-    color: #1a7f37;
+    color: var(--success);
     min-height: 1em;
     margin: 0 0 12px;
 }
 
 .error-message {
-    color: #cc0000;
+    color: var(--error);
     min-height: 1em;
     margin: 0 0 12px;
 }
@@ -162,10 +203,10 @@ main {
 }
 
 .form-links a {
-    color: #0066cc;
+    color: var(--primary);
 }
 
-/* Header with a button on the right; the title stays centered */
+/* ===== Header actions ===== */
 header.has-actions {
     position: relative;
 }
@@ -178,16 +219,15 @@ header.has-actions {
     padding: 8px 18px;
     font-size: 14px;
     background-color: transparent;
-    color: #ffffff;
-    border-color: #ffffff;
+    color: var(--header-text);
+    border-color: var(--header-text);
 }
 
 .btn-header:hover {
-    background-color: #ffffff;
-    color: #333333;
+    background-color: var(--header-text);
+    color: var(--header-bg);
 }
 
-/* On narrow screens, drop the button under the title so they don't overlap */
 @media (max-width: 600px) {
     .btn-header {
         position: static;
@@ -196,7 +236,7 @@ header.has-actions {
     }
 }
 
-/* Each ticket rendered into #request-list gets the blue-topped card look */
+/* ===== Request list grid ===== */
 #request-list {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -204,26 +244,32 @@ header.has-actions {
 }
 
 #request-list > * {
-    background-color: #ffffff;
-    border-top: 4px solid #0066cc;
+    background-color: var(--card-bg);
+    border-top: 4px solid var(--tile-border);
     border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 8px var(--shadow);
     padding: 20px;
     margin: 0;
     line-height: 1.5;
     text-align: left;
+    color: var(--text);
 }
 
 #request-list h3 {
     margin-top: 0;
+    color: var(--text);
 }
 
 #request-list select {
     padding: 4px 8px;
     font-size: 14px;
+    background-color: var(--input-bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 4px;
 }
 
-/* Homepage */
+/* ===== Homepage ===== */
 .button-row {
     display: flex;
     flex-wrap: wrap;
@@ -239,19 +285,20 @@ header.has-actions {
 }
 
 .feature {
-    background-color: #ffffff;
-    border-top: 4px solid #0066cc;
+    background-color: var(--card-bg);
+    border-top: 4px solid var(--tile-border);
     border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 8px var(--shadow);
     padding: 20px;
     line-height: 1.5;
 }
 
 .feature h3 {
     margin-top: 0;
+    color: var(--text);
 }
 
-/* Stats bar */
+/* ===== Stats bar ===== */
 .stats-bar {
     display: flex;
     flex-wrap: wrap;
@@ -261,7 +308,7 @@ header.has-actions {
 }
 
 .stat-tile {
-    background: #f5f5f5;
+    background: var(--stat-bg);
     border-radius: 8px;
     padding: 14px 24px;
     min-width: 100px;
@@ -270,14 +317,14 @@ header.has-actions {
     border: 2px solid transparent;
 }
 
-.stat-tile:hover { background: #eef5fc; border-color: #0066cc; }
-.stat-tile .stat-num { font-size: 28px; font-weight: bold; color: #333; }
-.stat-tile .stat-label { font-size: 13px; color: #666; margin-top: 2px; }
-.stat-tile.stat-open .stat-num { color: #cc0000; }
+.stat-tile:hover { background: var(--primary-light); border-color: var(--primary); }
+.stat-tile .stat-num { font-size: 28px; font-weight: bold; color: var(--text); }
+.stat-tile .stat-label { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+.stat-tile.stat-open .stat-num { color: var(--error); }
 .stat-tile.stat-progress .stat-num { color: #e67e00; }
-.stat-tile.stat-resolved .stat-num { color: #1a7f37; }
+.stat-tile.stat-resolved .stat-num { color: var(--success); }
 
-/* Priority badge */
+/* ===== Priority badge ===== */
 .priority-badge {
     color: #fff;
     padding: 2px 8px;
@@ -287,7 +334,7 @@ header.has-actions {
     flex-shrink: 0;
 }
 
-/* Pagination */
+/* ===== Pagination ===== */
 .pagination {
     display: flex;
     align-items: center;
@@ -297,12 +344,12 @@ header.has-actions {
     flex-wrap: wrap;
 }
 
-.page-info { color: #555; font-size: 14px; }
-.page-num { font-size: 14px; color: #333; }
-.page-btn { padding: 6px 16px; font-size: 14px; }
+.page-info { color: var(--text-muted); font-size: 14px; }
+.page-num  { font-size: 14px; color: var(--text); }
+.page-btn  { padding: 6px 16px; font-size: 14px; }
 .page-btn:disabled { opacity: 0.4; cursor: default; }
 
-/* Filter bar */
+/* ===== Filter bar ===== */
 .filter-bar {
     display: flex;
     flex-wrap: wrap;
@@ -315,23 +362,22 @@ header.has-actions {
 .filter-bar select {
     padding: 8px 12px;
     font-size: 14px;
-    border: 1px solid #cccccc;
+    border: 1px solid var(--border);
     border-radius: 4px;
-    background-color: #ffffff;
+    background-color: var(--input-bg);
+    color: var(--text);
     min-width: 160px;
 }
 
 .filter-bar input:focus,
 .filter-bar select:focus {
     outline: none;
-    border-color: #0066cc;
+    border-color: var(--primary);
     box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.15);
 }
 
-/* Admin page */
-.section-gap {
-    margin-top: 24px;
-}
+/* ===== Admin sections ===== */
+.section-gap { margin-top: 24px; }
 
 .user-list {
     list-style: none;
@@ -343,5 +389,186 @@ header.has-actions {
 
 .user-list li {
     padding: 8px 0;
-    border-bottom: 1px solid #eeeeee;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+}
+
+/* ===== Dark mode toggle ===== */
+.dark-toggle {
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: bold;
+    background: transparent;
+    color: var(--header-text);
+    border: 1px solid var(--header-text);
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.dark-toggle:hover { background: rgba(255,255,255,0.15); }
+
+/* ===== CSV export button ===== */
+.btn-csv {
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: bold;
+    background: transparent;
+    color: var(--header-text);
+    border: 1px solid var(--header-text);
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-csv:hover { background: rgba(255,255,255,0.15); }
+
+/* ===== Unread badge ===== */
+.unread-badge {
+    display: inline-block;
+    background: var(--error);
+    color: #fff;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 2px 8px;
+    border-radius: 12px;
+    margin-left: 8px;
+    vertical-align: middle;
+}
+
+/* ===== Due date / overdue ===== */
+.due-input {
+    padding: 3px 8px;
+    font-size: 13px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background-color: var(--input-bg);
+    color: var(--text);
+    cursor: pointer;
+}
+
+.overdue-label {
+    display: inline-block;
+    background: var(--error);
+    color: #fff;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 1px 6px;
+    border-radius: 10px;
+    margin-left: 6px;
+    vertical-align: middle;
+}
+
+/* ===== Bulk action bar ===== */
+#bulk-bar {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #333333;
+    color: #ffffff;
+    padding: 12px 20px;
+    align-items: center;
+    gap: 10px;
+    z-index: 1000;
+    flex-wrap: wrap;
+    border-top: 2px solid #555;
+}
+
+[data-theme="dark"] #bulk-bar {
+    background: #0d0d0d;
+    border-top: 2px solid #444;
+}
+
+#bulk-bar select {
+    padding: 6px 10px;
+    font-size: 13px;
+    border: 1px solid #888;
+    border-radius: 4px;
+    background: #555;
+    color: #fff;
+}
+
+.bulk-btn {
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: bold;
+    border-radius: 4px;
+    cursor: pointer;
+    border: none;
+}
+
+.bulk-btn-status { background: #0066cc; color: #fff; }
+.bulk-btn-assign { background: #e67e00; color: #fff; }
+.bulk-btn-delete { background: #cc0000; color: #fff; }
+.bulk-btn-clear  { background: #666; color: #fff; }
+
+/* ===== Ticket inline controls ===== */
+.ticket-inline-select {
+    padding: 4px 8px;
+    font-size: 13px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background-color: var(--input-bg);
+    color: var(--text);
+}
+
+.ticket-inline-input {
+    flex: 1;
+    padding: 6px 10px;
+    font-size: 13px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background-color: var(--input-bg);
+    color: var(--text);
+}
+
+/* ===== History section ===== */
+.history-section {
+    margin-top: 14px;
+    border-top: 1px solid var(--border);
+    padding-top: 10px;
+}
+
+.history-section summary {
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: bold;
+    user-select: none;
+    list-style: none;
+}
+
+.history-section summary::-webkit-details-marker { display: none; }
+.history-section summary::before { content: "▶ "; font-size: 10px; }
+details[open] .history-section summary::before,
+.history-section[open] summary::before { content: "▼ "; font-size: 10px; }
+
+.history-section summary:hover { color: var(--primary); }
+
+.history-entry {
+    font-size: 12px;
+    color: var(--text-muted);
+    padding: 4px 0;
+    border-bottom: 1px solid var(--border);
+    line-height: 1.4;
+}
+
+.history-entry:last-child { border-bottom: none; }
+
+/* ===== Charts ===== */
+.charts-card {
+    display: none;
+}
+
+.charts-card.visible {
+    display: block;
+}
+
+/* ===== Ticket checkbox ===== */
+.ticket-checkbox {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: var(--primary);
+    flex-shrink: 0;
 }
