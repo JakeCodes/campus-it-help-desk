@@ -208,14 +208,25 @@ main {
 
 /* ===== Header actions ===== */
 header.has-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     position: relative;
+    text-align: left;
+}
+
+header.has-actions h1 {
+    flex: 1;
+    text-align: center;
+}
+
+header.has-actions > div {
+    position: static !important;
+    transform: none !important;
+    flex-shrink: 0;
 }
 
 .btn-header {
-    position: absolute;
-    right: 20px;
-    top: 50%;
-    transform: translateY(-50%);
     padding: 8px 18px;
     font-size: 14px;
     background-color: transparent;
