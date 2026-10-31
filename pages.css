@@ -227,16 +227,22 @@ header.has-actions > div {
 }
 
 .btn-header {
-    padding: 8px 18px;
-    font-size: 14px;
-    background-color: transparent;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: bold;
+    background: transparent;
     color: var(--header-text);
-    border-color: var(--header-text);
+    border: 1px solid var(--header-text);
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
 }
 
 .btn-header:hover {
-    background-color: var(--header-text);
-    color: var(--header-bg);
+    background: rgba(255,255,255,0.15);
+    color: var(--header-text);
 }
 
 @media (max-width: 600px) {
@@ -404,8 +410,8 @@ header.has-actions > div {
     color: var(--text);
 }
 
-/* ===== Dark mode toggle ===== */
-.dark-toggle {
+/* ===== Dark mode toggle + CSV — same style as .btn-header ===== */
+.dark-toggle, .btn-csv {
     padding: 6px 14px;
     font-size: 13px;
     font-weight: bold;
@@ -416,21 +422,7 @@ header.has-actions > div {
     cursor: pointer;
 }
 
-.dark-toggle:hover { background: rgba(255,255,255,0.15); }
-
-/* ===== CSV export button ===== */
-.btn-csv {
-    padding: 6px 14px;
-    font-size: 13px;
-    font-weight: bold;
-    background: transparent;
-    color: var(--header-text);
-    border: 1px solid var(--header-text);
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.btn-csv:hover { background: rgba(255,255,255,0.15); }
+.dark-toggle:hover, .btn-csv:hover { background: rgba(255,255,255,0.15); }
 
 /* ===== Unread badge ===== */
 .unread-badge {
