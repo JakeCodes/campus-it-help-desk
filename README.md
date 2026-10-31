@@ -29,31 +29,6 @@ On first run, `db.json` is automatically created with a default admin account. N
 
 ---
 
-## Screenshots
-
-### Login
-![Login](screenshots/login.png)
-
-### Admin Dashboard (light mode)
-![Admin Dashboard](screenshots/admin-light-mode.png)
-
-### Admin Dashboard (dark mode)
-![Admin Dark Mode](screenshots/admin-dark-mode.png)
-
-### Ticket Card (age badge, due-date presets, tags, time tracking, merge)
-![Admin Ticket Card](screenshots/admin-ticket-card.png)
-
-### Management Panel (announcement, quick replies, tags, knowledge base)
-![Admin Management](screenshots/admin-management.png)
-
-### Student Dashboard
-![Student Dashboard](screenshots/student-dashboard.png)
-
-### Submit a New Request (with KB suggestions)
-![New Request](screenshots/new-request.png)
-
----
-
 ## Default Login
 
 | Role | Email | Password |
