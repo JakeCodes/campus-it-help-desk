@@ -424,6 +424,48 @@ header.has-actions > div {
 
 .dark-toggle:hover, .btn-csv:hover { background: rgba(255,255,255,0.15); }
 
+/* ===== Compact ticket rows ===== */
+.ticket-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 8px;
+    transition: background 0.15s, box-shadow 0.15s;
+}
+.ticket-row:hover { background: var(--hover-bg, var(--input-bg)); box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+.ticket-row-left { flex-shrink: 0; }
+.ticket-row-main { flex: 1; min-width: 0; }
+.ticket-row-title { font-size: 14px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.ticket-row-meta  { font-size: 12px; color: var(--text-faint); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ticket-row-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.status-chip {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 12px;
+    white-space: nowrap;
+}
+.status-chip.status-open         { background: #e8f4fd; color: #0066cc; }
+.status-chip.status-in-progress  { background: #fff3e0; color: #e67e00; }
+.status-chip.status-resolved     { background: #e8f5e9; color: #2e7d32; }
+[data-theme="dark"] .status-chip.status-open        { background: #003366; color: #66b2ff; }
+[data-theme="dark"] .status-chip.status-in-progress { background: #4d2600; color: #ffb347; }
+[data-theme="dark"] .status-chip.status-resolved    { background: #1b3a1f; color: #66bb6a; }
+
+/* ===== Ticket detail page ===== */
+.detail-section {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px 20px;
+    margin-bottom: 16px;
+}
+.detail-section h3 { margin: 0 0 12px; font-size: 15px; color: var(--text); }
+
 /* ===== Unread badge ===== */
 .unread-badge {
     display: inline-block;

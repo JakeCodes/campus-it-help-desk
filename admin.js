@@ -541,7 +541,7 @@ async function loadStaff() {
     bulkSel.appendChild(unopt);
 }
 
-// ---------- Render tickets ----------
+// ---------- Render tickets (compact list) ----------
 
 function renderTickets() {
     var filtered   = applyFiltersAndSort();
@@ -557,141 +557,46 @@ function renderTickets() {
 
     requestList.innerHTML = "";
     page.forEach(function (ticket) {
-        var card          = document.createElement("div");
+        var row           = document.createElement("div");
+        row.className     = "ticket-row";
         var priorityColor = PRIORITY_COLORS[ticket.priority] || "#6c757d";
-        var comments      = ticket.comments      || [];
-        var notes         = ticket.internalNotes || [];
-        var history       = ticket.history       || [];
-        var timeLog       = ticket.timeLog       || [];
+        var now           = new Date();
+        var dueDate       = ticket.dueDate ? new Date(ticket.dueDate + "T23:59:59") : null;
+        var isOverdue     = dueDate && dueDate < now && ticket.status !== "Resolved";
         var ticketTags    = (ticket.tags || []).map(function(id){ return allTags.find(function(t){ return t.id===id; }); }).filter(Boolean);
+        var tagPillsHtml  = ticketTags.map(function(tag){
+            return '<span class="tag-pill" style="background:' + tag.color + ';font-size:10px;padding:1px 6px">' + tag.name + '</span>';
+        }).join(" ");
 
-        var assignOptions = staffUsers.map(function (s) {
-            return '<option value="' + s.name + '" ' + (ticket.assignedTo === s.name ? "selected" : "") + '>' + s.name + '</option>';
-        }).join("");
-
-        var isImage    = ticket.attachment && /\.(png|jpg|jpeg|gif|webp)$/i.test(ticket.attachment.name);
-        var attachHtml = ticket.attachment ? (
-            isImage
-                ? '<div style="margin-top:8px"><a href="' + ticket.attachment.url + '" target="_blank"><img src="' + ticket.attachment.url + '" alt="' + ticket.attachment.name + '" style="max-width:100%;max-height:160px;border-radius:4px;border:1px solid var(--border)"></a></div>'
-                : '<div style="margin-top:8px"><a href="' + ticket.attachment.url + '" target="_blank" style="color:var(--primary)">Attachment: ' + ticket.attachment.name + '</a></div>'
-        ) : "";
-
-        var now       = new Date();
-        var dueDate   = ticket.dueDate ? new Date(ticket.dueDate + "T23:59:59") : null;
-        var isOverdue = dueDate && dueDate < now && ticket.status !== "Resolved";
-        var overdueHtml = isOverdue ? '<span class="overdue-label">OVERDUE</span>' : "";
-        var updatedText = ticket.updatedAt ? new Date(ticket.updatedAt).toLocaleString() : "";
-
-        // Tag pills HTML
-        var tagPillsHtml = ticketTags.map(function(tag){
-            return '<span class="tag-pill" style="background:' + tag.color + '" data-tagid="' + tag.id + '">' + tag.name + '<span class="tag-remove" title="Remove tag">×</span></span>';
-        }).join("");
-        // Tag picker options (tags not already applied)
-        var availTags = allTags.filter(function(t){ return !(ticket.tags||[]).includes(t.id); });
-        var tagPickerHtml = availTags.length > 0
-            ? '<select class="tag-picker ticket-inline-select" style="font-size:12px;padding:2px 6px"><option value="">+ Tag...</option>' + availTags.map(function(t){ return '<option value="'+t.id+'">'+t.name+'</option>'; }).join("") + '</select>'
-            : "";
-
-        // Rating HTML (admin view)
-        var ratingHtml = "";
-        if (ticket.rating) {
-            var stars = "★".repeat(ticket.rating.stars) + "☆".repeat(5 - ticket.rating.stars);
-            ratingHtml = '<div style="margin-top:10px;border-top:1px solid var(--border);padding-top:8px"><strong style="font-size:13px;color:var(--text)">Student Rating: </strong><span style="color:#f5a623">' + stars + '</span> <span style="font-size:12px;color:var(--text-muted)">(' + ticket.rating.stars + '/5' + (ticket.rating.comment ? " – " + ticket.rating.comment : "") + ')</span></div>';
-        }
-
-        // Time log total
-        var totalHrs = timeLog.reduce(function(s,e){ return s+e.hours; }, 0);
-        var timeLogHtml = '<div class="time-log-list" style="margin:6px 0">' +
-            (timeLog.length === 0 ? '<p style="color:var(--text-faint);font-size:12px;margin:0">No time logged.</p>' : timeLog.map(function(e){
-                return '<div class="time-entry">' + new Date(e.at).toLocaleString() + ' — ' + e.by + ': ' + e.hours + 'h' + (e.note?' – '+e.note:'') + '</div>';
-            }).join("")) + '</div>';
-
-        card.innerHTML =
-            '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">' +
-                '<label style="display:flex;align-items:center;gap:8px;flex:1;margin-right:8px;cursor:pointer">' +
-                    '<input type="checkbox" class="ticket-checkbox" value="' + ticket.id + '">' +
-                    '<h3 style="margin:0;font-size:15px;color:var(--text)"></h3>' +
-                '</label>' +
+        row.innerHTML =
+            '<div class="ticket-row-left">' +
+                '<input type="checkbox" class="ticket-checkbox" value="' + ticket.id + '" onclick="event.stopPropagation()">' +
+            '</div>' +
+            '<div class="ticket-row-main" style="cursor:pointer">' +
+                '<div class="ticket-row-title">' +
+                    '<span class="ticket-row-name"></span>' +
+                    ageBadge(ticket) +
+                    (isOverdue ? '<span class="overdue-label">OVERDUE</span>' : '') +
+                    (tagPillsHtml ? '<span style="margin-left:4px">' + tagPillsHtml + '</span>' : '') +
+                '</div>' +
+                '<div class="ticket-row-meta">' +
+                    'Ticket #' + ticket.id + ' · ' +
+                    '<span class="ticket-row-from"></span>' +
+                    ' · ' + ticket.category +
+                    (ticket.assignedTo ? ' · Assigned: ' + ticket.assignedTo : '') +
+                    (ticket.dueDate ? ' · Due: ' + new Date(ticket.dueDate + "T23:59:59").toLocaleDateString() : '') +
+                '</div>' +
+            '</div>' +
+            '<div class="ticket-row-right">' +
+                '<span class="status-chip status-' + ticket.status.replace(' ','-').toLowerCase() + '">' + ticket.status + '</span>' +
                 '<span class="priority-badge" style="background:' + priorityColor + '"></span>' +
-            '</div>' +
-            '<p style="margin:2px 0;font-size:12px;color:var(--text-faint)">Ticket #' + ticket.id + ageBadge(ticket) + (updatedText ? ' · Updated: ' + updatedText : '') + '</p>' +
-            '<p style="margin:4px 0;font-size:13px">' + (tagPillsHtml || "") + tagPickerHtml + '</p>' +
-            '<p style="margin:4px 0"><strong>From:</strong> <span class="from"></span></p>' +
-            '<p style="margin:4px 0"><strong>Category:</strong> <span class="category"></span></p>' +
-            '<p style="margin:4px 0"><strong>Submitted:</strong> <span class="created"></span></p>' +
-            '<p style="margin:4px 0"><strong>Due:</strong> <input type="date" class="due-input" value="' + (ticket.dueDate || "") + '"> ' + overdueHtml +
-                '<span class="due-presets" style="margin-left:6px;font-size:12px">' +
-                '<button class="btn due-preset-btn" data-hours="1" style="padding:1px 7px;font-size:11px">+1hr</button> ' +
-                '<button class="btn due-preset-btn" data-hours="24" style="padding:1px 7px;font-size:11px">+1day</button> ' +
-                '<button class="btn due-preset-btn" data-hours="72" style="padding:1px 7px;font-size:11px">+3days</button> ' +
-                '<button class="btn due-preset-btn" data-hours="168" style="padding:1px 7px;font-size:11px">+1wk</button>' +
-                '</span></p>' +
-            '<p class="desc" style="margin:8px 0;color:var(--text-muted)"></p>' +
-            attachHtml +
-            '<p style="margin:6px 0"><strong>Status:</strong> <select class="status-sel ticket-inline-select"></select></p>' +
-            '<p style="margin:6px 0"><strong>Assigned to:</strong>' +
-                '<select class="assign-sel ticket-inline-select"><option value="">Unassigned</option>' + assignOptions + '</select>' +
-            '</p>' +
-            '<div style="margin-top:8px;display:flex;justify-content:flex-end;gap:6px">' +
-                '<button class="btn print-btn" style="padding:4px 12px;font-size:13px;border-color:var(--text-muted);color:var(--text-muted);background:transparent">Print</button>' +
-                '<button class="btn delete-btn" style="padding:4px 12px;font-size:13px;border-color:var(--error);color:var(--error);background:transparent">Delete</button>' +
-            '</div>' +
-            ratingHtml +
+                '<span style="font-size:11px;color:var(--text-faint)">' + new Date(ticket.createdAt).toLocaleDateString() + '</span>' +
+            '</div>';
 
-            '<div class="comment-block" style="margin-top:14px;border-top:1px solid var(--border);padding-top:10px">' +
-                '<strong style="color:var(--text)">Comments (<span class="comment-count">' + comments.length + '</span>)</strong>' +
-                '<div class="comment-list" style="margin:8px 0"></div>' +
-                '<div style="margin-bottom:4px">' +
-                    (allQuickReplies.length > 0 ? '<select class="qr-picker ticket-inline-select" style="font-size:12px;width:100%;margin-bottom:4px"><option value="">Quick reply...</option>' + allQuickReplies.map(function(q){ return '<option value="'+q.id+'">'+q.text+'</option>'; }).join("") + '</select>' : '') +
-                '</div>' +
-                '<div style="display:flex;gap:8px">' +
-                    '<input class="comment-input ticket-inline-input" type="text" placeholder="Add comment (visible to student)...">' +
-                    '<button class="comment-btn btn btn-primary" style="padding:6px 12px;font-size:13px">Send</button>' +
-                '</div>' +
-            '</div>' +
+        row.querySelector(".ticket-row-name").textContent = ticket.title;
+        row.querySelector(".ticket-row-from").textContent = ticket.studentName;
 
-            '<div class="note-block" style="margin-top:14px;border-top:1px solid var(--border);padding-top:10px">' +
-                '<strong style="color:#8b4513">Internal Notes (<span class="note-count">' + notes.length + '</span>)</strong>' +
-                '<div class="note-list" style="margin:8px 0"></div>' +
-                '<div style="display:flex;gap:8px;margin-top:6px">' +
-                    '<input class="note-input ticket-inline-input" type="text" placeholder="Add private note (staff only)...">' +
-                    '<button class="note-btn btn" style="padding:6px 12px;font-size:13px;background:#8b4513;color:#fff;border-color:#8b4513">Add</button>' +
-                '</div>' +
-            '</div>' +
-
-            '<div style="margin-top:14px;border-top:1px solid var(--border);padding-top:10px">' +
-                '<strong style="font-size:13px;color:var(--text)">Time Log (<span class="time-total">' + totalHrs.toFixed(1) + '</span>h total)</strong>' +
-                timeLogHtml +
-                '<div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap">' +
-                    '<input type="number" class="time-hours ticket-inline-input" min="0.25" step="0.25" placeholder="Hours" style="width:80px;flex:none">' +
-                    '<input type="text" class="time-note ticket-inline-input" placeholder="Note (optional)" style="flex:1">' +
-                    '<button class="time-btn btn btn-primary" style="padding:6px 12px;font-size:13px">Log</button>' +
-                '</div>' +
-            '</div>' +
-
-            '<div style="margin-top:14px;border-top:1px solid var(--border);padding-top:10px">' +
-                '<strong style="font-size:13px;color:var(--text)">Merge Ticket</strong>' +
-                '<p style="font-size:12px;color:var(--text-muted);margin:4px 0">This ticket will absorb all comments/notes from the other ticket.</p>' +
-                '<div style="display:flex;gap:6px;margin-top:4px">' +
-                    '<input type="number" class="merge-input ticket-inline-input" placeholder="Merge ticket #..." style="flex:1">' +
-                    '<button class="merge-btn btn" style="padding:6px 12px;font-size:13px;background:#8b4513;color:#fff;border-color:#8b4513">Merge</button>' +
-                '</div>' +
-            '</div>' +
-
-            '<details class="history-section">' +
-                '<summary>History (' + history.length + ')</summary>' +
-                '<div class="history-list" style="margin-top:8px"></div>' +
-            '</details>';
-
-        card.querySelector("h3").textContent              = ticket.title;
-        card.querySelector(".priority-badge").textContent = ticket.priority || "Medium";
-        card.querySelector(".from").textContent           = ticket.studentName;
-        card.querySelector(".category").textContent       = ticket.category;
-        card.querySelector(".created").textContent        = new Date(ticket.createdAt).toLocaleDateString();
-        card.querySelector(".desc").textContent           = ticket.description;
-
-        // Checkbox
-        var checkbox = card.querySelector(".ticket-checkbox");
+        var checkbox = row.querySelector(".ticket-checkbox");
         checkbox.checked = selectedTickets.has(ticket.id);
         checkbox.addEventListener("change", function () {
             if (this.checked) selectedTickets.add(ticket.id);
@@ -699,156 +604,11 @@ function renderTickets() {
             updateBulkBar();
         });
 
-        // Tag remove
-        card.querySelectorAll(".tag-pill .tag-remove").forEach(function(btn){
-            btn.addEventListener("click", function(){
-                var tagId = parseInt(btn.closest(".tag-pill").dataset.tagid);
-                var newTags = (ticket.tags || []).filter(function(id){ return id !== tagId; });
-                fetch("/api/tickets/" + ticket.id, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tags: newTags, changedBy: user.name }) })
-                    .then(function(r){ return r.json(); }).then(function(updated){ ticket.tags = updated.tags; renderTickets(); });
-            });
+        row.querySelector(".ticket-row-main").addEventListener("click", function () {
+            window.location.href = "admin-ticket.html?id=" + ticket.id;
         });
 
-        // Tag picker
-        var tagPicker = card.querySelector(".tag-picker");
-        if (tagPicker) {
-            tagPicker.addEventListener("change", function(){
-                var tagId = parseInt(this.value);
-                if (!tagId) return;
-                var newTags = (ticket.tags || []).concat([tagId]);
-                fetch("/api/tickets/" + ticket.id, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tags: newTags, changedBy: user.name }) })
-                    .then(function(r){ return r.json(); }).then(function(updated){ ticket.tags = updated.tags; renderTickets(); });
-                this.value = "";
-            });
-        }
-
-        // Due date
-        var dueInput = card.querySelector(".due-input");
-        function saveDueDate(val) {
-            fetch("/api/tickets/" + ticket.id, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ dueDate: val, changedBy: user.name }) })
-                .then(function (r) { return r.json(); }).then(function (upd) { var t = allTickets.find(function(x){ return x.id===ticket.id; }); if (t) { t.dueDate = val; t.updatedAt = upd.updatedAt; } });
-        }
-        dueInput.addEventListener("change", function () { saveDueDate(this.value || null); });
-        card.querySelectorAll(".due-preset-btn").forEach(function(btn) {
-            btn.addEventListener("click", function() {
-                var hours = parseInt(btn.dataset.hours);
-                var d = new Date(Date.now() + hours * 3600000);
-                var val = d.toISOString().slice(0, 10);
-                dueInput.value = val;
-                saveDueDate(val);
-            });
-        });
-
-        // Status select
-        var statusSel = card.querySelector(".status-sel");
-        STATUSES.forEach(function (s) {
-            var opt = document.createElement("option");
-            opt.value = s; opt.textContent = s; opt.selected = s === ticket.status;
-            statusSel.appendChild(opt);
-        });
-        statusSel.addEventListener("change", function () {
-            fetch("/api/tickets/" + ticket.id, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status: statusSel.value, changedBy: user.name }) })
-                .then(function (r) { return r.json(); }).then(function (upd) { var t = allTickets.find(function(x){ return x.id===ticket.id; }); if (t) { t.status = statusSel.value; t.updatedAt = upd.updatedAt; } updateStats(); });
-        });
-
-        // Assign select
-        var assignSel = card.querySelector(".assign-sel");
-        assignSel.addEventListener("change", function () {
-            fetch("/api/tickets/" + ticket.id, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ assignedTo: assignSel.value || null, changedBy: user.name }) })
-                .then(function (r) { return r.json(); }).then(function (upd) { var t = allTickets.find(function(x){ return x.id===ticket.id; }); if (t) { t.assignedTo = assignSel.value || null; t.updatedAt = upd.updatedAt; } });
-        });
-
-        // Print
-        card.querySelector(".print-btn").addEventListener("click", function(){
-            window.open("ticket-print.html?id=" + ticket.id, "_blank", "width=780,height=900");
-        });
-
-        // Delete
-        card.querySelector(".delete-btn").addEventListener("click", async function () {
-            if (!confirm("Delete this ticket? This cannot be undone.")) return;
-            var r = await fetch("/api/tickets/" + ticket.id, { method: "DELETE" });
-            if (r.ok) { allTickets = allTickets.filter(function(x){ return x.id !== ticket.id; }); selectedTickets.delete(ticket.id); updateBulkBar(); updateStats(); renderTickets(); }
-        });
-
-        // Comments
-        var commentList  = card.querySelector(".comment-list");
-        var commentInput = card.querySelector(".comment-input");
-        renderMessages(commentList, comments, false);
-
-        var qrPicker = card.querySelector(".qr-picker");
-        if (qrPicker) {
-            qrPicker.addEventListener("change", function(){
-                var id = parseInt(this.value);
-                if (!id) return;
-                var qr = allQuickReplies.find(function(q){ return q.id === id; });
-                if (qr) commentInput.value = qr.text;
-                this.value = "";
-                commentInput.focus();
-            });
-        }
-
-        card.querySelector(".comment-btn").addEventListener("click", async function () {
-            var text = commentInput.value.trim(); if (!text) return;
-            var r = await fetch("/api/tickets/" + ticket.id + "/comments", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ author: user.name, text: text, fromStudent: false }) });
-            if (r.ok) { var c = await r.json(); ticket.comments = ticket.comments || []; ticket.comments.push(c); renderMessages(commentList, ticket.comments, false); commentInput.value = ""; card.querySelector(".comment-count").textContent = ticket.comments.length; }
-        });
-        commentInput.addEventListener("keydown", function (e) { if (e.key === "Enter") card.querySelector(".comment-btn").click(); });
-
-        // Notes
-        var noteList  = card.querySelector(".note-list");
-        var noteInput = card.querySelector(".note-input");
-        renderMessages(noteList, notes, true);
-        card.querySelector(".note-btn").addEventListener("click", async function () {
-            var text = noteInput.value.trim(); if (!text) return;
-            var r = await fetch("/api/tickets/" + ticket.id + "/notes", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ author: user.name, text: text }) });
-            if (r.ok) { var n = await r.json(); ticket.internalNotes = ticket.internalNotes || []; ticket.internalNotes.push(n); renderMessages(noteList, ticket.internalNotes, true); noteInput.value = ""; card.querySelector(".note-count").textContent = ticket.internalNotes.length; }
-        });
-        noteInput.addEventListener("keydown", function (e) { if (e.key === "Enter") card.querySelector(".note-btn").click(); });
-
-        // Time log
-        card.querySelector(".time-btn").addEventListener("click", async function(){
-            var hours = parseFloat(card.querySelector(".time-hours").value);
-            var note  = card.querySelector(".time-note").value.trim();
-            if (isNaN(hours) || hours <= 0) { alert("Enter valid hours."); return; }
-            var r = await fetch("/api/tickets/" + ticket.id + "/time", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ hours: hours, note: note, by: user.name }) });
-            if (r.ok) {
-                var entry = await r.json();
-                ticket.timeLog = ticket.timeLog || [];
-                ticket.timeLog.push(entry);
-                var total = ticket.timeLog.reduce(function(s,e){ return s+e.hours; }, 0);
-                card.querySelector(".time-total").textContent = total.toFixed(1);
-                card.querySelector(".time-hours").value = "";
-                card.querySelector(".time-note").value  = "";
-                var timeListEl = card.querySelector(".time-log-list");
-                timeListEl.innerHTML = ticket.timeLog.map(function(e){
-                    return '<div class="time-entry">' + new Date(e.at).toLocaleString() + ' — ' + e.by + ': ' + e.hours + 'h' + (e.note?' – '+e.note:'') + '</div>';
-                }).join("");
-                if (statsVisible) renderStaffStats();
-            }
-        });
-
-        // Merge
-        card.querySelector(".merge-btn").addEventListener("click", async function(){
-            var secId = parseInt(card.querySelector(".merge-input").value);
-            if (!secId || secId === ticket.id) { alert("Enter a valid ticket ID to merge."); return; }
-            if (!confirm("Merge ticket #" + secId + " into this ticket? Ticket #" + secId + " will be deleted.")) return;
-            var r = await fetch("/api/tickets/merge", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ primaryId: ticket.id, secondaryId: secId, mergedBy: user.name }) });
-            if (r.ok) {
-                var updated = await r.json();
-                var idx = allTickets.findIndex(function(t){ return t.id === ticket.id; });
-                if (idx !== -1) allTickets[idx] = updated;
-                allTickets = allTickets.filter(function(t){ return t.id !== secId; });
-                renderTickets();
-            } else {
-                var err = await r.json();
-                alert(err.error || "Merge failed.");
-            }
-        });
-
-        // History
-        renderHistory(card.querySelector(".history-list"), history);
-
-        requestList.appendChild(card);
+        requestList.appendChild(row);
     });
 }
 

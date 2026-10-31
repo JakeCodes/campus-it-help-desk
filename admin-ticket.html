@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticket Detail — Campus IT</title>
+    <script>if(localStorage.getItem('theme')==='dark')document.documentElement.setAttribute('data-theme','dark');</script>
+    <link rel="stylesheet" href="pages.css">
+</head>
+<body>
+    <header class="has-actions">
+        <h1>Campus IT Help Desk</h1>
+        <div style="display:flex;gap:8px;align-items:center">
+            <a href="admin.html" class="btn-header">← Back</a>
+            <button class="dark-toggle" id="dark-toggle" onclick="toggleDark()">Dark Mode</button>
+            <button class="btn-header" onclick="logout()">Log out</button>
+        </div>
+    </header>
+
+    <main style="max-width:800px;margin:0 auto;padding:20px 16px">
+
+        <div id="loading" style="text-align:center;padding:40px;color:var(--text-muted)">Loading ticket...</div>
+
+        <div id="ticket-detail" style="display:none">
+
+            <!-- Header row -->
+            <div class="detail-section" style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
+                <div style="flex:1;min-width:0">
+                    <h2 id="tkt-title" style="margin:0 0 6px;font-size:20px;color:var(--text)"></h2>
+                    <p style="margin:0;font-size:13px;color:var(--text-faint)">
+                        Ticket #<span id="tkt-id"></span>
+                        <span id="tkt-age-badge"></span>
+                        · From: <strong id="tkt-from"></strong>
+                        · <span id="tkt-created"></span>
+                    </p>
+                    <p style="margin:4px 0;font-size:13px;color:var(--text-faint)">
+                        Category: <strong id="tkt-category"></strong>
+                        &nbsp;·&nbsp; Priority: <strong id="tkt-priority"></strong>
+                    </p>
+                    <div id="tkt-tags" style="margin-top:6px;display:flex;gap:4px;flex-wrap:wrap"></div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
+                    <div style="display:flex;gap:6px">
+                        <button class="btn" id="print-btn" style="padding:5px 14px;font-size:13px;border-color:var(--text-muted);color:var(--text-muted);background:transparent">Print</button>
+                        <button class="btn" id="delete-btn" style="padding:5px 14px;font-size:13px;border-color:var(--error);color:var(--error);background:transparent">Delete</button>
+                    </div>
+                    <div id="tkt-rating"></div>
+                </div>
+            </div>
+
+            <!-- Description + attachment -->
+            <div class="detail-section">
+                <h3>Description</h3>
+                <p id="tkt-desc" style="margin:0;color:var(--text);white-space:pre-wrap;line-height:1.6"></p>
+                <div id="tkt-attach" style="margin-top:10px"></div>
+            </div>
+
+            <!-- Status / Assignee / Due -->
+            <div class="detail-section">
+                <h3>Manage</h3>
+                <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start">
+                    <div>
+                        <label style="font-size:12px;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px">STATUS</label>
+                        <select id="status-sel" class="ticket-inline-select"></select>
+                    </div>
+                    <div>
+                        <label style="font-size:12px;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px">ASSIGNED TO</label>
+                        <select id="assign-sel" class="ticket-inline-select">
+                            <option value="">Unassigned</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size:12px;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px">DUE DATE</label>
+                        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+                            <input type="date" id="due-input" class="ticket-inline-input">
+                            <span id="overdue-label"></span>
+                        </div>
+                        <div style="margin-top:4px;display:flex;gap:4px">
+                            <button class="btn due-preset-btn" data-hours="1"   style="padding:2px 8px;font-size:11px">+1hr</button>
+                            <button class="btn due-preset-btn" data-hours="24"  style="padding:2px 8px;font-size:11px">+1day</button>
+                            <button class="btn due-preset-btn" data-hours="72"  style="padding:2px 8px;font-size:11px">+3days</button>
+                            <button class="btn due-preset-btn" data-hours="168" style="padding:2px 8px;font-size:11px">+1wk</button>
+                        </div>
+                    </div>
+                    <div>
+                        <label style="font-size:12px;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px">TAGS</label>
+                        <select id="tag-picker" class="ticket-inline-select" style="font-size:12px">
+                            <option value="">+ Add tag...</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comments -->
+            <div class="detail-section">
+                <h3>Comments (<span id="comment-count">0</span>)</h3>
+                <div id="comment-list" style="margin-bottom:12px"></div>
+                <div id="qr-wrap" style="margin-bottom:6px"></div>
+                <div style="display:flex;gap:8px">
+                    <input type="text" id="comment-input" class="ticket-inline-input" placeholder="Add comment (visible to student)..." style="flex:1">
+                    <button id="comment-btn" class="btn btn-primary" style="padding:6px 14px;font-size:13px">Send</button>
+                </div>
+            </div>
+
+            <!-- Internal notes -->
+            <div class="detail-section">
+                <h3 style="color:#8b4513">Internal Notes (<span id="note-count">0</span>)</h3>
+                <div id="note-list" style="margin-bottom:12px"></div>
+                <div style="display:flex;gap:8px">
+                    <input type="text" id="note-input" class="ticket-inline-input" placeholder="Add private note (staff only)..." style="flex:1">
+                    <button id="note-btn" class="btn" style="padding:6px 14px;font-size:13px;background:#8b4513;color:#fff;border-color:#8b4513">Add</button>
+                </div>
+            </div>
+
+            <!-- Time log -->
+            <div class="detail-section">
+                <h3>Time Log (<span id="time-total">0.0</span>h total)</h3>
+                <div id="time-list" style="margin-bottom:12px"></div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap">
+                    <input type="number" id="time-hours" class="ticket-inline-input" min="0.25" step="0.25" placeholder="Hours" style="width:90px;flex:none">
+                    <input type="text"   id="time-note"  class="ticket-inline-input" placeholder="Note (optional)" style="flex:1">
+                    <button id="time-btn" class="btn btn-primary" style="padding:6px 14px;font-size:13px">Log</button>
+                </div>
+            </div>
+
+            <!-- Merge -->
+            <div class="detail-section">
+                <h3>Merge Ticket</h3>
+                <p style="font-size:13px;color:var(--text-muted);margin:0 0 8px">This ticket absorbs all comments, notes and time entries from the other ticket, which is then deleted.</p>
+                <div style="display:flex;gap:8px">
+                    <input type="number" id="merge-input" class="ticket-inline-input" placeholder="Merge ticket #..." style="flex:1">
+                    <button id="merge-btn" class="btn" style="padding:6px 14px;font-size:13px;background:#8b4513;color:#fff;border-color:#8b4513">Merge</button>
+                </div>
+            </div>
+
+            <!-- History -->
+            <div class="detail-section">
+                <details>
+                    <summary style="cursor:pointer;font-weight:600;color:var(--text);font-size:15px">History (<span id="history-count">0</span>)</summary>
+                    <div id="history-list" style="margin-top:10px"></div>
+                </details>
+            </div>
+
+        </div>
+    </main>
+
+    <script src="admin-ticket.js"></script>
+    <script src="session.js"></script>
+</body>
+</html>
