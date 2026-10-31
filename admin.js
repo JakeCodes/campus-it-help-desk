@@ -619,7 +619,13 @@ function renderTickets() {
             '<p style="margin:4px 0"><strong>From:</strong> <span class="from"></span></p>' +
             '<p style="margin:4px 0"><strong>Category:</strong> <span class="category"></span></p>' +
             '<p style="margin:4px 0"><strong>Submitted:</strong> <span class="created"></span></p>' +
-            '<p style="margin:4px 0"><strong>Due:</strong> <input type="date" class="due-input" value="' + (ticket.dueDate || "") + '"> ' + overdueHtml + '</p>' +
+            '<p style="margin:4px 0"><strong>Due:</strong> <input type="date" class="due-input" value="' + (ticket.dueDate || "") + '"> ' + overdueHtml +
+                '<span class="due-presets" style="margin-left:6px;font-size:12px">' +
+                '<button class="btn due-preset-btn" data-hours="1" style="padding:1px 7px;font-size:11px">+1hr</button> ' +
+                '<button class="btn due-preset-btn" data-hours="24" style="padding:1px 7px;font-size:11px">+1day</button> ' +
+                '<button class="btn due-preset-btn" data-hours="72" style="padding:1px 7px;font-size:11px">+3days</button> ' +
+                '<button class="btn due-preset-btn" data-hours="168" style="padding:1px 7px;font-size:11px">+1wk</button>' +
+                '</span></p>' +
             '<p class="desc" style="margin:8px 0;color:var(--text-muted)"></p>' +
             attachHtml +
             '<p style="margin:6px 0"><strong>Status:</strong> <select class="status-sel ticket-inline-select"></select></p>' +
@@ -718,10 +724,19 @@ function renderTickets() {
 
         // Due date
         var dueInput = card.querySelector(".due-input");
-        dueInput.addEventListener("change", function () {
-            var val = this.value || null;
+        function saveDueDate(val) {
             fetch("/api/tickets/" + ticket.id, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ dueDate: val, changedBy: user.name }) })
                 .then(function (r) { return r.json(); }).then(function (upd) { var t = allTickets.find(function(x){ return x.id===ticket.id; }); if (t) { t.dueDate = val; t.updatedAt = upd.updatedAt; } });
+        }
+        dueInput.addEventListener("change", function () { saveDueDate(this.value || null); });
+        card.querySelectorAll(".due-preset-btn").forEach(function(btn) {
+            btn.addEventListener("click", function() {
+                var hours = parseInt(btn.dataset.hours);
+                var d = new Date(Date.now() + hours * 3600000);
+                var val = d.toISOString().slice(0, 10);
+                dueInput.value = val;
+                saveDueDate(val);
+            });
         });
 
         // Status select
