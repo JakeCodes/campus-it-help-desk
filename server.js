@@ -555,3 +555,19 @@ http.createServer(async (req, res) => {
 }).listen(PORT, () => {
     console.log(`Campus IT Help Desk running at http://localhost:${PORT}`);
 });
+
+function purgeResolvedTickets() {
+    const db = readDb();
+    const cutoff = Date.now() - 24 * 60 * 60 * 1000;
+    const before = db.tickets.length;
+    db.tickets = db.tickets.filter(t =>
+        !(t.status === "Resolved" && t.updatedAt && new Date(t.updatedAt).getTime() < cutoff)
+    );
+    if (db.tickets.length !== before) {
+        saveDb(db);
+        console.log(`Auto-deleted ${before - db.tickets.length} resolved ticket(s) older than 24h`);
+    }
+}
+
+purgeResolvedTickets();
+setInterval(purgeResolvedTickets, 60 * 60 * 1000);
