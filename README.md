@@ -53,6 +53,9 @@ On first run, `db.json` is automatically created with a default admin account. N
 - Update your name or password from your profile page
 - Unread badge shows when staff has added a new comment since your last visit
 - Due date shown on tickets (highlighted red if overdue)
+- **Satisfaction rating** — after a ticket is resolved, rate the support 1–5 stars with an optional comment
+- **Announcement banner** — see site-wide notices from IT staff at the top of the page
+- **Knowledge base suggestions** — when typing a new ticket title, matching help articles appear as suggestions
 - Dark mode toggle (preference saved across sessions)
 - Auto logout after 30 minutes of inactivity
 
@@ -63,10 +66,12 @@ On first run, `db.json` is automatically created with a default admin account. N
 - Search tickets by title, student name, description, or ticket ID (type `#5`)
 - Sort tickets by date, priority, or status
 - Pagination (10 tickets per page)
+- **Compact ticket list** — each ticket is a clean row; click it to open a full detail page
 - Change ticket status (Open → In Progress → Resolved)
 - Assign tickets to a staff member
-- Set a due date on any ticket — overdue tickets are flagged red
+- Set a due date — quick presets: +1hr, +1day, +3days, +1wk; overdue tickets flagged red
 - **Ticket age badge** — color-coded (green/yellow/red) showing how long an open ticket has been waiting
+- **Auto-delete** — resolved tickets are automatically deleted 24 hours after being resolved
 - Bulk actions — select multiple tickets to set status, assign, or delete all at once
 - Add student-visible comments to tickets
 - **Quick reply templates** — save canned responses and insert them with one click when commenting
@@ -84,15 +89,11 @@ On first run, `db.json` is automatically created with a default admin account. N
 - **Print view** — open a clean, print-friendly view of any ticket
 - **Announcement banner** — post a site-wide notice that appears at the top of every page for all users
 - **Knowledge base** — create searchable help articles; students see article suggestions when submitting new tickets
+- **Satisfaction ratings** — see star ratings students leave on resolved tickets
 - Add and delete user accounts
 - View and update your own profile
 - Dark mode toggle
 - Auto logout after 30 minutes of inactivity
-
-### Students (new features)
-- **Satisfaction rating** — after a ticket is resolved, rate the support 1–5 stars with an optional comment
-- **Announcement banner** — see site-wide notices from IT staff at the top of the page
-- **Knowledge base suggestions** — when typing a new ticket title, matching help articles appear as suggestions
 
 ---
 
@@ -109,7 +110,9 @@ On first run, `db.json` is automatically created with a default admin account. N
 | `register.html` / `register.js` | Create student account |
 | `student.html` / `student.js` | Student ticket dashboard |
 | `new-request.html` / `new-request.js` | Submit a new ticket |
-| `admin.html` / `admin.js` | Admin dashboard |
+| `admin.html` / `admin.js` | Admin dashboard (ticket list) |
+| `admin-ticket.html` / `admin-ticket.js` | Ticket detail page (status, comments, notes, time, merge) |
+| `chart.umd.min.js` | Chart.js 4.4.4 bundled locally for dashboard charts |
 | `profile.html` / `profile.js` | Update name / change password |
 | `pages.css` | Shared styles (with dark mode CSS variables) |
 | `ticket-print.html` | Clean print view for a single ticket |
