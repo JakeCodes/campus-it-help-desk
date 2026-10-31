@@ -3,53 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-
     <title>Campus IT System - Admin</title>
-    <meta name="description" content="IT Support Staff view of all requests and users.">
-
-    <!-- Link to your external CSS stylesheets -->
-    <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="pages.css">
 </head>
 <body>
-
     <header class="has-actions">
         <h1>Campus IT Help Desk</h1>
-        <button class="btn btn-header" onclick="logout()">Log out</button>
+        <div style="position:absolute;right:20px;top:50%;transform:translateY(-50%);display:flex;flex-direction:row;align-items:center;gap:8px;white-space:nowrap">
+            <a href="profile.html" class="btn btn-header" style="position:static;transform:none">My Profile</a>
+            <button class="btn btn-header" style="position:static;transform:none" onclick="logout()">Log out</button>
+        </div>
     </header>
 
     <main>
         <div class="card">
             <h2>All IT Requests</h2>
             <p class="subtitle">Every request submitted by students.</p>
+
+            <div class="stats-bar">
+                <div class="stat-tile" id="stat-all" onclick="filterByStat('')">
+                    <div class="stat-num" id="count-all">0</div>
+                    <div class="stat-label">Total</div>
+                </div>
+                <div class="stat-tile stat-open" id="stat-open" onclick="filterByStat('Open')">
+                    <div class="stat-num" id="count-open">0</div>
+                    <div class="stat-label">Open</div>
+                </div>
+                <div class="stat-tile stat-progress" id="stat-progress" onclick="filterByStat('In Progress')">
+                    <div class="stat-num" id="count-progress">0</div>
+                    <div class="stat-label">In Progress</div>
+                </div>
+                <div class="stat-tile stat-resolved" id="stat-resolved" onclick="filterByStat('Resolved')">
+                    <div class="stat-num" id="count-resolved">0</div>
+                    <div class="stat-label">Resolved</div>
+                </div>
+            </div>
+
+            <div class="filter-bar">
+                <input type="text" id="search" placeholder="Search tickets...">
+                <select id="filter-status">
+                    <option value="">All Statuses</option>
+                    <option value="Open">Open</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Resolved">Resolved</option>
+                </select>
+                <select id="filter-priority">
+                    <option value="">All Priorities</option>
+                    <option value="Urgent">Urgent</option>
+                    <option value="High">High</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Low">Low</option>
+                </select>
+                <select id="filter-category">
+                    <option value="">All Categories</option>
+                    <option value="Wi-Fi / Network">Wi-Fi / Network</option>
+                    <option value="Account / Password">Account / Password</option>
+                    <option value="Email">Email</option>
+                    <option value="Printer">Printer</option>
+                    <option value="Software">Software</option>
+                    <option value="Hardware">Hardware</option>
+                    <option value="Other">Other</option>
+                </select>
+                <select id="sort-by">
+                    <option value="date-desc">Newest first</option>
+                    <option value="date-asc">Oldest first</option>
+                    <option value="priority-desc">Priority: High → Low</option>
+                    <option value="priority-asc">Priority: Low → High</option>
+                    <option value="status">Status</option>
+                </select>
+            </div>
         </div>
 
-        <div id="request-list">
-            <p>Loading Tickets...</p>
-        </div>
+        <div id="request-list"></div>
+        <div id="pagination" class="pagination"></div>
 
         <div class="card request-card section-gap">
             <h2>Users</h2>
             <ul id="user-list" class="user-list"></ul>
-
             <h3>Add a User</h3>
             <form id="userForm">
                 <div class="form-group">
                     <label for="name">Name</label>
                     <input type="text" id="name" required>
                 </div>
-
                 <div class="form-group">
                     <label for="email">Email</label>
                     <input type="email" id="email" required>
                 </div>
-
                 <div class="form-group">
                     <label for="password">Password</label>
                     <input type="text" id="password" required>
                 </div>
-
                 <div class="form-group">
                     <label for="role">Role</label>
                     <select id="role">
@@ -57,10 +101,8 @@
                         <option value="admin">Admin</option>
                     </select>
                 </div>
-
                 <p id="errorMessage" class="error-message"></p>
                 <p id="successMessage" class="success-message"></p>
-
                 <button type="submit" class="btn btn-primary">Add User</button>
             </form>
         </div>

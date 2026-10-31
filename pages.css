@@ -251,6 +251,83 @@ header.has-actions {
     margin-top: 0;
 }
 
+/* Stats bar */
+.stats-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    margin: 20px 0 10px;
+}
+
+.stat-tile {
+    background: #f5f5f5;
+    border-radius: 8px;
+    padding: 14px 24px;
+    min-width: 100px;
+    cursor: pointer;
+    transition: background 0.15s;
+    border: 2px solid transparent;
+}
+
+.stat-tile:hover { background: #eef5fc; border-color: #0066cc; }
+.stat-tile .stat-num { font-size: 28px; font-weight: bold; color: #333; }
+.stat-tile .stat-label { font-size: 13px; color: #666; margin-top: 2px; }
+.stat-tile.stat-open .stat-num { color: #cc0000; }
+.stat-tile.stat-progress .stat-num { color: #e67e00; }
+.stat-tile.stat-resolved .stat-num { color: #1a7f37; }
+
+/* Priority badge */
+.priority-badge {
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+/* Pagination */
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 16px 0;
+    flex-wrap: wrap;
+}
+
+.page-info { color: #555; font-size: 14px; }
+.page-num { font-size: 14px; color: #333; }
+.page-btn { padding: 6px 16px; font-size: 14px; }
+.page-btn:disabled { opacity: 0.4; cursor: default; }
+
+/* Filter bar */
+.filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 16px;
+    justify-content: center;
+}
+
+.filter-bar input,
+.filter-bar select {
+    padding: 8px 12px;
+    font-size: 14px;
+    border: 1px solid #cccccc;
+    border-radius: 4px;
+    background-color: #ffffff;
+    min-width: 160px;
+}
+
+.filter-bar input:focus,
+.filter-bar select:focus {
+    outline: none;
+    border-color: #0066cc;
+    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.15);
+}
+
 /* Admin page */
 .section-gap {
     margin-top: 24px;

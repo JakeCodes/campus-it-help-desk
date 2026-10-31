@@ -3,20 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-
     <title>Campus IT System</title>
-    <meta name="description" content="Student view of submitted IT support requests.">
-
-    <!-- Link to your external CSS stylesheets -->
-    <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="pages.css">
 </head>
 <body>
-
     <header class="has-actions">
         <h1>Campus IT Help Desk</h1>
-        <button class="btn btn-header" onclick="logout()">Log out</button>
+        <div style="position:absolute;right:20px;top:50%;transform:translateY(-50%);display:flex;flex-direction:row;align-items:center;gap:8px;white-space:nowrap">
+            <a href="profile.html" class="btn btn-header" style="position:static;transform:none">My Profile</a>
+            <button class="btn btn-header" style="position:static;transform:none" onclick="logout()">Log out</button>
+        </div>
     </header>
 
     <main>
@@ -24,14 +20,28 @@
             <h2>My IT Requests</h2>
             <p class="subtitle">Listed below are your IT requests.</p>
             <a href="new-request.html" class="btn btn-primary">+ New Request</a>
+            <div class="filter-bar">
+                <input type="text" id="search" placeholder="Search tickets...">
+                <select id="filter-status">
+                    <option value="">All Statuses</option>
+                    <option value="Open">Open</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Resolved">Resolved</option>
+                </select>
+                <select id="sort-by">
+                    <option value="date-desc">Newest first</option>
+                    <option value="date-asc">Oldest first</option>
+                    <option value="priority-desc">Priority: High → Low</option>
+                    <option value="priority-asc">Priority: Low → High</option>
+                    <option value="status">Status</option>
+                </select>
+            </div>
         </div>
 
-        <div id="request-list">
-            <p>Loading Tickets...</p>
-        </div>
+        <div id="request-list"></div>
+        <div id="pagination" class="pagination"></div>
     </main>
 
-    <!-- Link to your external JavaScript file -->
     <script src="student.js"></script>
 </body>
 </html>

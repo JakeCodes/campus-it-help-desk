@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus IT System - My Profile</title>
+    <link rel="stylesheet" href="pages.css">
+</head>
+<body>
+    <header class="has-actions">
+        <h1>Campus IT Help Desk</h1>
+        <button class="btn btn-header" onclick="logout()">Log out</button>
+    </header>
+    <main>
+        <div class="card request-card">
+            <h2>My Profile</h2>
+            <p class="subtitle">Update your name or change your password.</p>
+            <form id="profileForm">
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <input type="text" id="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="currentPassword">Current Password</label>
+                    <input type="password" id="currentPassword" required placeholder="Required to save changes">
+                </div>
+                <div class="form-group">
+                    <label for="newPassword">New Password <span style="font-weight:normal;color:#888">(leave blank to keep current)</span></label>
+                    <input type="password" id="newPassword" placeholder="Optional">
+                </div>
+                <p id="errorMessage" class="error-message"></p>
+                <p id="successMessage" class="success-message"></p>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+            </form>
+            <div class="form-links">
+                <p id="backLink"></p>
+            </div>
+        </div>
+    </main>
+    <script src="profile.js"></script>
+</body>
+</html>
