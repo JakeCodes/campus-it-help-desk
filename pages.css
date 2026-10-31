@@ -572,3 +572,159 @@ details[open] .history-section summary::before,
     accent-color: var(--primary);
     flex-shrink: 0;
 }
+
+/* ===== Age badge ===== */
+.age-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 1px 7px;
+    border-radius: 10px;
+    margin-left: 6px;
+    vertical-align: middle;
+    color: #fff;
+}
+.age-fresh  { background: #1a7f37; }
+.age-warn   { background: #e67e00; }
+.age-old    { background: #cc0000; }
+
+/* ===== Tag pills ===== */
+.tag-pill {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 2px 8px;
+    border-radius: 10px;
+    color: #fff;
+    margin: 2px 3px 2px 0;
+    cursor: default;
+}
+.tag-pill .tag-remove {
+    margin-left: 4px;
+    cursor: pointer;
+    opacity: 0.7;
+}
+.tag-pill .tag-remove:hover { opacity: 1; }
+
+/* ===== Star rating ===== */
+.star-rating { display: inline-flex; gap: 2px; cursor: pointer; }
+.star-rating .star { font-size: 20px; color: #ccc; transition: color 0.1s; }
+.star-rating .star.filled { color: #f5a623; }
+.star-rating .star:hover  { color: #f5a623; }
+
+/* ===== Announcement banner ===== */
+.announcement-bar {
+    background: #fff3cd;
+    border-left: 4px solid #e67e00;
+    border-radius: 4px;
+    padding: 10px 16px;
+    margin-bottom: 16px;
+    font-size: 14px;
+    color: #7a4400;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+}
+[data-theme="dark"] .announcement-bar {
+    background: #2a1f00;
+    border-color: #e67e00;
+    color: #ffd066;
+}
+.announcement-bar .ann-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+
+/* ===== KB suggestions ===== */
+.kb-suggestions {
+    background: var(--primary-light);
+    border: 1px solid var(--primary);
+    border-radius: 4px;
+    padding: 10px 14px;
+    margin-top: 6px;
+    font-size: 13px;
+}
+.kb-suggestions .kb-title { font-weight: bold; color: var(--text); margin-bottom: 6px; }
+.kb-suggestion-item {
+    padding: 4px 0;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    color: var(--primary);
+}
+.kb-suggestion-item:last-child { border-bottom: none; }
+.kb-suggestion-item:hover { text-decoration: underline; }
+
+/* ===== Saved views ===== */
+.saved-views-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 8px;
+    align-items: center;
+}
+.saved-view-btn {
+    padding: 4px 12px;
+    font-size: 12px;
+    border: 1px solid var(--primary);
+    border-radius: 12px;
+    background: transparent;
+    color: var(--primary);
+    cursor: pointer;
+}
+.saved-view-btn:hover { background: var(--primary-light); }
+.saved-view-btn.active { background: var(--primary); color: #fff; }
+
+/* ===== Time log entries ===== */
+.time-entry {
+    font-size: 12px;
+    color: var(--text-muted);
+    padding: 3px 0;
+    border-bottom: 1px solid var(--border);
+}
+.time-entry:last-child { border-bottom: none; }
+
+/* ===== Management sections ===== */
+.mgmt-section {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin-bottom: 16px;
+    overflow: hidden;
+}
+.mgmt-section summary {
+    padding: 10px 14px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 14px;
+    color: var(--text);
+    background: var(--stat-bg);
+    list-style: none;
+    user-select: none;
+}
+.mgmt-section summary::-webkit-details-marker { display: none; }
+.mgmt-section summary::before { content: "▶ "; font-size: 10px; }
+details[open].mgmt-section summary::before { content: "▼ "; font-size: 10px; }
+.mgmt-section summary:hover { background: var(--primary-light); color: var(--primary); }
+.mgmt-section-body { padding: 12px 14px; }
+
+/* ===== Staff stats table ===== */
+.stats-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-top: 8px;
+}
+.stats-table th, .stats-table td {
+    text-align: left;
+    padding: 6px 10px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+}
+.stats-table th { font-weight: bold; color: var(--text-muted); }
+
+/* ===== Print styles ===== */
+@media print {
+    header, .filter-bar, .stats-bar, #pagination,
+    #bulk-bar, .delete-btn, .comment-btn, .note-btn,
+    .due-input, .status-sel, .assign-sel, .ticket-checkbox,
+    button, .btn, .dark-toggle, .btn-csv { display: none !important; }
+    body { background: white; }
+    #request-list { display: block !important; }
+    #request-list > * { box-shadow: none; border: 1px solid #ccc; margin-bottom: 16px; page-break-inside: avoid; }
+}

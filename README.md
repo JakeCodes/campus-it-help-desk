@@ -66,18 +66,33 @@ On first run, `db.json` is automatically created with a default admin account. N
 - Change ticket status (Open → In Progress → Resolved)
 - Assign tickets to a staff member
 - Set a due date on any ticket — overdue tickets are flagged red
+- **Ticket age badge** — color-coded (green/yellow/red) showing how long an open ticket has been waiting
 - Bulk actions — select multiple tickets to set status, assign, or delete all at once
 - Add student-visible comments to tickets
+- **Quick reply templates** — save canned responses and insert them with one click when commenting
 - Students can reply to comments directly
 - Add private internal notes (staff-only, never shown to students)
 - Full audit history on every ticket — every status change, assignment, comment, and note is logged with timestamp and author
 - Dashboard charts — donut chart by status, bar chart by category (click "Show Charts")
+- **Staff stats panel** — tickets resolved per staff member, open count per assignee, total time logged, average student rating
 - Export current filtered tickets to CSV
 - Last updated timestamp on every ticket
+- **Ticket tags** — create custom color labels and apply them to any ticket; manage tags from the Management section
+- **Saved filter views** — save your current filter settings as a named view and switch between them with one click
+- **Ticket merge** — merge a duplicate ticket into another, combining all comments, notes, and time entries
+- **Time tracking** — log hours worked on a ticket; admin sees totals per ticket and per staff member in stats
+- **Print view** — open a clean, print-friendly view of any ticket
+- **Announcement banner** — post a site-wide notice that appears at the top of every page for all users
+- **Knowledge base** — create searchable help articles; students see article suggestions when submitting new tickets
 - Add and delete user accounts
 - View and update your own profile
 - Dark mode toggle
 - Auto logout after 30 minutes of inactivity
+
+### Students (new features)
+- **Satisfaction rating** — after a ticket is resolved, rate the support 1–5 stars with an optional comment
+- **Announcement banner** — see site-wide notices from IT staff at the top of the page
+- **Knowledge base suggestions** — when typing a new ticket title, matching help articles appear as suggestions
 
 ---
 
@@ -97,6 +112,7 @@ On first run, `db.json` is automatically created with a default admin account. N
 | `admin.html` / `admin.js` | Admin dashboard |
 | `profile.html` / `profile.js` | Update name / change password |
 | `pages.css` | Shared styles (with dark mode CSS variables) |
+| `ticket-print.html` | Clean print view for a single ticket |
 
 ---
 
@@ -117,6 +133,21 @@ On first run, `db.json` is automatically created with a default admin account. N
 | PUT | `/api/tickets/:id/read` | Mark ticket as read (clears student unread flag) |
 | POST | `/api/tickets/:id/comments` | Add a comment (student or staff) |
 | POST | `/api/tickets/:id/notes` | Add an internal staff note |
+| GET | `/api/announcement` | Get site-wide announcement |
+| PUT | `/api/announcement` | Post or clear announcement |
+| GET | `/api/quickreplies` | List quick reply templates |
+| POST | `/api/quickreplies` | Create a quick reply template |
+| DELETE | `/api/quickreplies/:id` | Delete a template |
+| GET | `/api/tags` | List ticket tags |
+| POST | `/api/tags` | Create a tag |
+| DELETE | `/api/tags/:id` | Delete a tag |
+| GET | `/api/kb` | List knowledge base articles |
+| POST | `/api/kb` | Create an article |
+| PUT | `/api/kb/:id` | Update an article |
+| DELETE | `/api/kb/:id` | Delete an article |
+| POST | `/api/tickets/merge` | Merge two tickets |
+| POST | `/api/tickets/:id/rating` | Submit student satisfaction rating |
+| POST | `/api/tickets/:id/time` | Log time on a ticket |
 
 ---
 

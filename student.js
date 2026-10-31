@@ -27,6 +27,18 @@ function toggleDark() {
 
 // ---------- Tickets ----------
 
+function loadAnnouncement() {
+    fetch("/api/announcement").then(function(r){ return r.json(); }).then(function(data){
+        var bar = document.getElementById("announcement-bar");
+        if (data.announcement && data.announcement.active) {
+            document.getElementById("announcement-text").textContent = data.announcement.text;
+            bar.style.display = "flex";
+        } else {
+            bar.style.display = "none";
+        }
+    });
+}
+
 async function loadTickets() {
     var res = await fetch("/api/tickets?email=" + encodeURIComponent(user.email));
     allTickets = await res.json();
@@ -118,7 +130,17 @@ function renderTickets() {
                 : '<div style="margin-top:8px"><a href="' + ticket.attachment.url + '" target="_blank" style="color:var(--primary)">Attachment: ' + ticket.attachment.name + '</a></div>'
         ) : "";
 
-        var canReopen   = ticket.status === "Resolved";
+        var canReopen    = ticket.status === "Resolved";
+        var isResolved   = ticket.status === "Resolved";
+        var ratingHtml   = "";
+        if (isResolved) {
+            if (ticket.rating) {
+                var stars = "★".repeat(ticket.rating.stars) + "☆".repeat(5 - ticket.rating.stars);
+                ratingHtml = '<div style="margin-top:10px;border-top:1px solid var(--border);padding-top:8px;font-size:13px"><strong>Your rating:</strong> <span style="color:#f5a623">' + stars + '</span>' + (ticket.rating.comment ? ' — ' + ticket.rating.comment : '') + '</div>';
+            } else {
+                ratingHtml = '<div style="margin-top:10px;border-top:1px solid var(--border);padding-top:8px;font-size:13px"><strong>How was this resolved?</strong><div class="star-rating" data-ticketid="' + ticket.id + '">' + [1,2,3,4,5].map(function(n){ return '<span class="star" data-value="'+n+'">&#9733;</span>'; }).join("") + '</div><input class="rating-comment" type="text" placeholder="Optional comment..." style="width:100%;box-sizing:border-box;margin-top:4px;padding:5px 8px;font-size:13px;border:1px solid var(--border);border-radius:4px;background:var(--input-bg);color:var(--text)"><button class="rating-btn btn btn-primary" style="margin-top:6px;padding:5px 14px;font-size:13px">Submit Rating</button></div>';
+            }
+        }
         var updatedText = ticket.updatedAt ? new Date(ticket.updatedAt).toLocaleString() : "";
         var now         = new Date();
         var dueDateObj  = ticket.dueDate ? new Date(ticket.dueDate + "T23:59:59") : null;
@@ -143,6 +165,7 @@ function renderTickets() {
             dueDateHtml +
             '<p class="desc" style="margin:8px 0;color:var(--text-muted)"></p>' +
             attachHtml +
+            ratingHtml +
             '<div class="comment-block" style="margin-top:14px;border-top:1px solid var(--border);padding-top:10px">' +
                 '<strong style="color:var(--text)">Conversation (<span class="comment-count">' + comments.length + '</span>)</strong>' +
                 '<div class="comment-list" style="margin:8px 0"></div>' +
@@ -158,6 +181,35 @@ function renderTickets() {
         card.querySelector(".status-text").textContent = ticket.status;
         card.querySelector(".created-text").textContent = new Date(ticket.createdAt).toLocaleDateString();
         card.querySelector(".desc").textContent        = ticket.description;
+
+        // Star rating
+        var starRating = card.querySelector(".star-rating");
+        if (starRating) {
+            var selectedStars = 0;
+            var stars = starRating.querySelectorAll(".star");
+            stars.forEach(function(star){
+                star.addEventListener("mouseover", function(){
+                    var v = parseInt(star.dataset.value);
+                    stars.forEach(function(s){ s.classList.toggle("filled", parseInt(s.dataset.value) <= v); });
+                });
+                star.addEventListener("mouseleave", function(){
+                    stars.forEach(function(s){ s.classList.toggle("filled", parseInt(s.dataset.value) <= selectedStars); });
+                });
+                star.addEventListener("click", function(){
+                    selectedStars = parseInt(star.dataset.value);
+                    stars.forEach(function(s){ s.classList.toggle("filled", parseInt(s.dataset.value) <= selectedStars); });
+                });
+            });
+            var ratingBtn = card.querySelector(".rating-btn");
+            if (ratingBtn) {
+                ratingBtn.addEventListener("click", async function(){
+                    if (!selectedStars) { alert("Please select a star rating."); return; }
+                    var comment = card.querySelector(".rating-comment").value.trim();
+                    var r = await fetch("/api/tickets/" + ticket.id + "/rating", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ stars: selectedStars, comment: comment, by: user.name }) });
+                    if (r.ok) { ticket.rating = { stars: selectedStars, comment: comment }; renderTickets(); }
+                });
+            }
+        }
 
         if (canReopen) {
             card.querySelector(".reopen-btn").addEventListener("click", async function () {
@@ -237,4 +289,5 @@ function logout() {
 if (user) {
     document.getElementById("page-heading").textContent = user.name + "'s IT Requests";
     loadTickets();
+    loadAnnouncement();
 }

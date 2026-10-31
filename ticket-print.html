@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticket Print View</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 720px; margin: 0 auto; padding: 24px; color: #333; background: #fff; }
+        .no-print { background: #333; color: #fff; padding: 10px 16px; border-radius: 4px; margin-bottom: 20px; display: flex; gap: 10px; }
+        .no-print button { padding: 6px 16px; cursor: pointer; border: 1px solid #fff; background: transparent; color: #fff; border-radius: 4px; font-size: 14px; }
+        .no-print button:hover { background: rgba(255,255,255,0.2); }
+        h1 { font-size: 20px; margin: 0 0 4px; }
+        .meta { font-size: 12px; color: #777; margin-bottom: 12px; }
+        .field { margin-bottom: 8px; font-size: 14px; }
+        .field strong { color: #444; }
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; color: #fff; font-size: 12px; font-weight: bold; }
+        .divider { border: none; border-top: 1px solid #ccc; margin: 16px 0; }
+        .msg { background: #f5f5f5; border-radius: 4px; padding: 8px 12px; margin-bottom: 8px; font-size: 13px; }
+        .msg-header { font-weight: bold; color: #555; font-size: 12px; margin-bottom: 4px; }
+        .note { background: #fff8f0; border-left: 3px solid #8b4513; border-radius: 4px; padding: 8px 12px; margin-bottom: 8px; font-size: 13px; }
+        .history-entry { font-size: 12px; color: #666; padding: 3px 0; border-bottom: 1px solid #eee; }
+        @media print { .no-print { display: none !important; } }
+    </style>
+</head>
+<body>
+    <div class="no-print">
+        <button onclick="window.print()">Print</button>
+        <button onclick="window.close()">Close</button>
+    </div>
+    <div id="content"><p>Loading ticket...</p></div>
+    <script>
+        var id = new URLSearchParams(location.search).get("id");
+        if (!id) { document.getElementById("content").textContent = "No ticket ID specified."; }
+        else {
+            fetch("/api/tickets").then(function(r){ return r.json(); }).then(function(tickets){
+                var t = tickets.find(function(x){ return x.id === parseInt(id); });
+                if (!t) { document.getElementById("content").textContent = "Ticket not found."; return; }
+                document.title = "Ticket #" + t.id + " - " + t.title;
+                var COLORS = { Low: "#6c757d", Medium: "#0066cc", High: "#e67e00", Urgent: "#cc0000" };
+                var comments = t.comments || [];
+                var notes    = t.internalNotes || [];
+                var history  = t.history || [];
+                var timeLog  = t.timeLog || [];
+                var totalHrs = timeLog.reduce(function(s,e){ return s + e.hours; }, 0);
+
+                var commHtml = comments.length === 0 ? "<p style='color:#888;font-size:13px'>None.</p>" : comments.map(function(c){
+                    return '<div class="msg"><div class="msg-header">' + c.author + (c.fromStudent?" [Student]":"") + " · " + new Date(c.createdAt).toLocaleString() + '</div>' + c.text + '</div>';
+                }).join("");
+                var notesHtml = notes.length === 0 ? "<p style='color:#888;font-size:13px'>None.</p>" : notes.map(function(n){
+                    return '<div class="note"><div class="msg-header">' + n.author + " · " + new Date(n.createdAt).toLocaleString() + '</div>' + n.text + '</div>';
+                }).join("");
+                var histHtml = history.slice().reverse().map(function(h){
+                    return '<div class="history-entry">' + new Date(h.at).toLocaleString() + " — " + h.by + ": " + h.action + '</div>';
+                }).join("");
+                var timeHtml = timeLog.length === 0 ? "" : "<hr class='divider'><h3>Time Log (" + totalHrs.toFixed(1) + " hrs total)</h3>" + timeLog.map(function(e){
+                    return '<div class="history-entry">' + new Date(e.at).toLocaleString() + " — " + e.by + ": " + e.hours + "h" + (e.note ? " – " + e.note : "") + '</div>';
+                }).join("");
+                var ratingHtml = t.rating ? "<hr class='divider'><h3>Student Rating</h3><p>" + "★".repeat(t.rating.stars) + "☆".repeat(5-t.rating.stars) + " (" + t.rating.stars + "/5)" + (t.rating.comment ? "<br>" + t.rating.comment : "") + "</p>" : "";
+
+                document.getElementById("content").innerHTML =
+                    '<h1>' + t.title + '</h1>' +
+                    '<div class="meta">Ticket #' + t.id + ' · Submitted ' + new Date(t.createdAt).toLocaleString() + ' · Last updated ' + new Date(t.updatedAt).toLocaleString() + '</div>' +
+                    '<div class="field"><strong>Student:</strong> ' + t.studentName + ' (' + t.studentEmail + ')</div>' +
+                    '<div class="field"><strong>Category:</strong> ' + t.category + ' &nbsp; <strong>Priority:</strong> <span class="badge" style="background:' + (COLORS[t.priority]||"#6c757d") + '">' + t.priority + '</span></div>' +
+                    '<div class="field"><strong>Status:</strong> ' + t.status + (t.assignedTo ? ' &nbsp; <strong>Assigned to:</strong> ' + t.assignedTo : '') + '</div>' +
+                    (t.dueDate ? '<div class="field"><strong>Due date:</strong> ' + t.dueDate + '</div>' : '') +
+                    '<hr class="divider">' +
+                    '<h3>Description</h3><p style="font-size:14px;line-height:1.6">' + t.description + '</p>' +
+                    '<hr class="divider"><h3>Comments (' + comments.length + ')</h3>' + commHtml +
+                    '<hr class="divider"><h3>Internal Notes (' + notes.length + ')</h3>' + notesHtml +
+                    timeHtml + ratingHtml +
+                    '<hr class="divider"><h3>History</h3>' + (histHtml || '<p style="color:#888;font-size:13px">None.</p>');
+            }).catch(function(){ document.getElementById("content").textContent = "Failed to load ticket."; });
+        }
+    </script>
+</body>
+</html>

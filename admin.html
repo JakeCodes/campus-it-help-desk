@@ -43,8 +43,17 @@
                 </div>
             </div>
 
-            <div style="margin-top:10px">
+            <div id="announcement-bar" class="announcement-bar" style="display:none">
+                <span class="ann-icon">&#128226;</span>
+                <span id="announcement-text"></span>
+            </div>
+
+            <div id="saved-views-bar" class="saved-views-bar"></div>
+
+            <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:8px;justify-content:center">
                 <button class="btn btn-outline" id="charts-toggle-btn" style="font-size:13px;padding:6px 16px" onclick="toggleCharts()">Show Charts</button>
+                <button class="btn btn-outline" id="stats-toggle-btn" style="font-size:13px;padding:6px 16px" onclick="toggleStaffStats()">Staff Stats</button>
+                <button class="btn btn-outline" id="save-view-btn" style="font-size:13px;padding:6px 16px" onclick="saveCurrentView()">Save View</button>
             </div>
 
             <div class="filter-bar">
@@ -96,11 +105,72 @@
             </div>
         </div>
 
+        <div id="staff-stats-card" class="card charts-card" style="text-align:left">
+            <h3 style="margin-top:0;color:var(--text)">Staff Stats</h3>
+            <div id="staff-stats-body"></div>
+        </div>
+
         <div id="request-list"></div>
         <div id="pagination" class="pagination"></div>
 
         <div class="card request-card section-gap">
-            <h2>Users</h2>
+            <h2>Management</h2>
+
+            <details class="mgmt-section">
+                <summary>Announcement Banner</summary>
+                <div class="mgmt-section-body">
+                    <p style="font-size:13px;color:var(--text-muted);margin-top:0">Post a notice that appears at the top of every page for all users.</p>
+                    <textarea id="ann-text" rows="2" style="width:100%;box-sizing:border-box;padding:8px;font-size:14px;border:1px solid var(--border);border-radius:4px;background:var(--input-bg);color:var(--text);resize:vertical" placeholder="Enter announcement message..."></textarea>
+                    <div style="display:flex;gap:8px;margin-top:8px">
+                        <button class="btn btn-primary" style="padding:6px 16px;font-size:13px" onclick="saveAnnouncement()">Post</button>
+                        <button class="btn btn-outline" style="padding:6px 16px;font-size:13px" onclick="clearAnnouncement()">Clear</button>
+                    </div>
+                    <p id="ann-msg" style="font-size:13px;margin:8px 0 0;color:var(--success)"></p>
+                </div>
+            </details>
+
+            <details class="mgmt-section">
+                <summary>Quick Reply Templates</summary>
+                <div class="mgmt-section-body">
+                    <p style="font-size:13px;color:var(--text-muted);margin-top:0">Save canned responses to reuse when commenting on tickets.</p>
+                    <ul id="qr-list" style="list-style:none;padding:0;margin:0 0 12px;font-size:13px"></ul>
+                    <div style="display:flex;gap:8px">
+                        <input type="text" id="qr-input" style="flex:1;padding:6px 10px;font-size:13px;border:1px solid var(--border);border-radius:4px;background:var(--input-bg);color:var(--text)" placeholder="New template text...">
+                        <button class="btn btn-primary" style="padding:6px 14px;font-size:13px" onclick="addQuickReply()">Add</button>
+                    </div>
+                </div>
+            </details>
+
+            <details class="mgmt-section">
+                <summary>Ticket Tags</summary>
+                <div class="mgmt-section-body">
+                    <p style="font-size:13px;color:var(--text-muted);margin-top:0">Create color labels you can apply to any ticket.</p>
+                    <div id="tags-list" style="margin-bottom:12px;display:flex;flex-wrap:wrap;gap:6px"></div>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap">
+                        <input type="text" id="tag-name-input" style="flex:1;min-width:120px;padding:6px 10px;font-size:13px;border:1px solid var(--border);border-radius:4px;background:var(--input-bg);color:var(--text)" placeholder="Tag name...">
+                        <input type="color" id="tag-color-input" value="#0066cc" style="width:40px;height:34px;border:1px solid var(--border);border-radius:4px;cursor:pointer;padding:2px">
+                        <button class="btn btn-primary" style="padding:6px 14px;font-size:13px" onclick="addTag()">Add Tag</button>
+                    </div>
+                </div>
+            </details>
+
+            <details class="mgmt-section">
+                <summary>Knowledge Base</summary>
+                <div class="mgmt-section-body">
+                    <p style="font-size:13px;color:var(--text-muted);margin-top:0">Create searchable help articles. Students see suggestions when submitting tickets.</p>
+                    <ul id="kb-list" style="list-style:none;padding:0;margin:0 0 12px;font-size:13px"></ul>
+                    <div id="kb-form">
+                        <input type="text" id="kb-title-input" style="width:100%;box-sizing:border-box;padding:6px 10px;font-size:13px;border:1px solid var(--border);border-radius:4px;background:var(--input-bg);color:var(--text);margin-bottom:6px" placeholder="Article title...">
+                        <textarea id="kb-content-input" rows="3" style="width:100%;box-sizing:border-box;padding:8px;font-size:13px;border:1px solid var(--border);border-radius:4px;background:var(--input-bg);color:var(--text);resize:vertical;margin-bottom:6px" placeholder="Article content / solution steps..."></textarea>
+                        <div style="display:flex;gap:8px">
+                            <button class="btn btn-primary" style="padding:6px 14px;font-size:13px" onclick="saveKbArticle()">Save Article</button>
+                            <button class="btn btn-outline" style="padding:6px 14px;font-size:13px" id="kb-cancel-btn" style="display:none" onclick="cancelKbEdit()">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </details>
+
+            <h2 style="margin-top:20px">Users</h2>
             <ul id="user-list" class="user-list"></ul>
             <h3 style="color:var(--text)">Add a User</h3>
             <form id="userForm">
